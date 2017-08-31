@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6281fe1d042eb1343aae4ed0e31c1660
+timeCreated: 1504185517
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - HorizontalBarPrefab: {fileID: 114755367433192948, guid: 80c1130d1537b6d4d8b3f4bac0eceb78,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
