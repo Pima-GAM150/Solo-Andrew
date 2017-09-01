@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using UnityEngine;
 
 namespace EraseGame.Delegates
 {
-    public delegate void BarSpawn(HorizontalBar bar);
+    public delegate void BarEvent(HorizontalBar bar);
 
     public delegate void BlockEvent(BreakableBlock block);
 

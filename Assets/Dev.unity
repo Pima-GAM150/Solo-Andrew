@@ -135,13 +135,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6281fe1d042eb1343aae4ed0e31c1660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BreakTime: 1
   AimLocation: {x: 0, y: 0}
-  AimSpeed: 10
-  AimTime: 50
+  AimSpeed: 70
+  AimTime: 2
+  AimAngleMax: 60
   HorizontalBarPrefab: {fileID: 114755367433192948, guid: 80c1130d1537b6d4d8b3f4bac0eceb78,
     type: 2}
   InitialSpawnDistance: 6
-  LineMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   ScrollSpeed: 10
   ShouldDrawAim: 0
 --- !u!4 &264607805
@@ -156,6 +157,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &945411666
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 945411668}
+  - component: {fileID: 945411667}
+  m_Layer: 0
+  m_Name: EndCollider
+  m_TagString: EndCollider
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!68 &945411667
+EdgeCollider2D:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 945411666}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_EdgeRadius: 0
+  m_Points:
+  - {x: -3.3, y: 0}
+  - {x: 3.3, y: 0}
+--- !u!4 &945411668
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 945411666}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 9, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1064214724
 GameObject:
@@ -288,6 +335,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29861888582498c4a8a9c9af90840bf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartColor: {r: 0, g: 1, b: 0, a: 1}
+  EndColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!61 &1064214733
 BoxCollider2D:
   m_ObjectHideFlags: 0
