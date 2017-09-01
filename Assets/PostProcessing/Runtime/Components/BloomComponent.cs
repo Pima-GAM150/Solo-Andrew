@@ -2,23 +2,17 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class BloomComponent : PostProcessingComponentRenderTexture<BloomModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _AutoExposure        = Shader.PropertyToID("_AutoExposure");
-            internal static readonly int _Threshold           = Shader.PropertyToID("_Threshold");
-            internal static readonly int _Curve               = Shader.PropertyToID("_Curve");
-            internal static readonly int _PrefilterOffs       = Shader.PropertyToID("_PrefilterOffs");
-            internal static readonly int _SampleScale         = Shader.PropertyToID("_SampleScale");
-            internal static readonly int _BaseTex             = Shader.PropertyToID("_BaseTex");
-            internal static readonly int _BloomTex            = Shader.PropertyToID("_BloomTex");
-            internal static readonly int _Bloom_Settings      = Shader.PropertyToID("_Bloom_Settings");
-            internal static readonly int _Bloom_DirtTex       = Shader.PropertyToID("_Bloom_DirtTex");
-            internal static readonly int _Bloom_DirtIntensity = Shader.PropertyToID("_Bloom_DirtIntensity");
-        }
+        #region Private Fields
 
-        const int k_MaxPyramidBlurLevel = 16;
-        readonly RenderTexture[] m_BlurBuffer1 = new RenderTexture[k_MaxPyramidBlurLevel];
-        readonly RenderTexture[] m_BlurBuffer2 = new RenderTexture[k_MaxPyramidBlurLevel];
+        private const int k_MaxPyramidBlurLevel = 16;
+
+        private readonly RenderTexture[] m_BlurBuffer1 = new RenderTexture[k_MaxPyramidBlurLevel];
+
+        private readonly RenderTexture[] m_BlurBuffer2 = new RenderTexture[k_MaxPyramidBlurLevel];
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -29,6 +23,10 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public void Prepare(RenderTexture source, Material uberMaterial, Texture autoExposure)
         {
@@ -139,5 +137,30 @@ namespace UnityEngine.PostProcessing
                 uberMaterial.EnableKeyword("BLOOM");
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _AutoExposure = Shader.PropertyToID("_AutoExposure");
+
+            internal static readonly int _BaseTex = Shader.PropertyToID("_BaseTex");
+            internal static readonly int _Bloom_DirtIntensity = Shader.PropertyToID("_Bloom_DirtIntensity");
+            internal static readonly int _Bloom_DirtTex = Shader.PropertyToID("_Bloom_DirtTex");
+            internal static readonly int _Bloom_Settings = Shader.PropertyToID("_Bloom_Settings");
+            internal static readonly int _BloomTex = Shader.PropertyToID("_BloomTex");
+            internal static readonly int _Curve = Shader.PropertyToID("_Curve");
+            internal static readonly int _PrefilterOffs = Shader.PropertyToID("_PrefilterOffs");
+            internal static readonly int _SampleScale = Shader.PropertyToID("_SampleScale");
+            internal static readonly int _Threshold = Shader.PropertyToID("_Threshold");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

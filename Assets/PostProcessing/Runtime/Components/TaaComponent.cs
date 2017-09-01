@@ -4,24 +4,23 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class TaaComponent : PostProcessingComponentRenderTexture<AntialiasingModel>
     {
-        static class Uniforms
-        {
-            internal static int _Jitter               = Shader.PropertyToID("_Jitter");
-            internal static int _SharpenParameters    = Shader.PropertyToID("_SharpenParameters");
-            internal static int _FinalBlendParameters = Shader.PropertyToID("_FinalBlendParameters");
-            internal static int _HistoryTex           = Shader.PropertyToID("_HistoryTex");
-            internal static int _MainTex              = Shader.PropertyToID("_MainTex");
-        }
+        #region Private Fields
 
-        const string k_ShaderString = "Hidden/Post FX/Temporal Anti-aliasing";
-        const int k_SampleCount = 8;
+        private const int k_SampleCount = 8;
 
-        readonly RenderBuffer[] m_MRT = new RenderBuffer[2];
+        private const string k_ShaderString = "Hidden/Post FX/Temporal Anti-aliasing";
 
-        int m_SampleIndex = 0;
-        bool m_ResetHistory = true;
+        private readonly RenderBuffer[] m_MRT = new RenderBuffer[2];
 
-        RenderTexture m_HistoryTexture;
+        private RenderTexture m_HistoryTexture;
+
+        private bool m_ResetHistory = true;
+
+        private int m_SampleIndex = 0;
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -35,49 +34,25 @@ namespace UnityEngine.PostProcessing
             }
         }
 
+        public Vector2 jitterVector { get; private set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
+
         public override DepthTextureMode GetCameraFlags()
         {
             return DepthTextureMode.Depth | DepthTextureMode.MotionVectors;
         }
 
-        public Vector2 jitterVector { get; private set; }
-
-        public void ResetHistory()
+        public override void OnDisable()
         {
-            m_ResetHistory = true;
-        }
+            if (m_HistoryTexture != null)
+                RenderTexture.ReleaseTemporary(m_HistoryTexture);
 
-        public void SetProjectionMatrix(Func<Vector2, Matrix4x4> jitteredFunc)
-        {
-            var settings = model.settings.taaSettings;
-
-            var jitter = GenerateRandomOffset();
-            jitter *= settings.jitterSpread;
-
-            context.camera.nonJitteredProjectionMatrix = context.camera.projectionMatrix;
-
-            if (jitteredFunc != null)
-            {
-                context.camera.projectionMatrix = jitteredFunc(jitter);
-            }
-            else
-            {
-                context.camera.projectionMatrix = context.camera.orthographic
-                    ? GetOrthographicProjectionMatrix(jitter)
-                    : GetPerspectiveProjectionMatrix(jitter);
-            }
-
-#if UNITY_5_5_OR_NEWER
-            context.camera.useJitteredProjectionMatrixForTransparentRendering = false;
-#endif
-
-            jitter.x /= context.width;
-            jitter.y /= context.height;
-
-            var material = context.materialFactory.Get(k_ShaderString);
-            material.SetVector(Uniforms._Jitter, jitter);
-
-            jitterVector = jitter;
+            m_HistoryTexture = null;
+            m_SampleIndex = 0;
+            ResetHistory();
         }
 
         public void Render(RenderTexture source, RenderTexture destination)
@@ -119,7 +94,61 @@ namespace UnityEngine.PostProcessing
             m_ResetHistory = false;
         }
 
-        float GetHaltonValue(int index, int radix)
+        public void ResetHistory()
+        {
+            m_ResetHistory = true;
+        }
+
+        public void SetProjectionMatrix(Func<Vector2, Matrix4x4> jitteredFunc)
+        {
+            var settings = model.settings.taaSettings;
+
+            var jitter = GenerateRandomOffset();
+            jitter *= settings.jitterSpread;
+
+            context.camera.nonJitteredProjectionMatrix = context.camera.projectionMatrix;
+
+            if (jitteredFunc != null)
+            {
+                context.camera.projectionMatrix = jitteredFunc(jitter);
+            }
+            else
+            {
+                context.camera.projectionMatrix = context.camera.orthographic
+                    ? GetOrthographicProjectionMatrix(jitter)
+                    : GetPerspectiveProjectionMatrix(jitter);
+            }
+
+#if UNITY_5_5_OR_NEWER
+            context.camera.useJitteredProjectionMatrixForTransparentRendering = false;
+#endif
+
+            jitter.x /= context.width;
+            jitter.y /= context.height;
+
+            var material = context.materialFactory.Get(k_ShaderString);
+            material.SetVector(Uniforms._Jitter, jitter);
+
+            jitterVector = jitter;
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private Vector2 GenerateRandomOffset()
+        {
+            var offset = new Vector2(
+                    GetHaltonValue(m_SampleIndex & 1023, 2),
+                    GetHaltonValue(m_SampleIndex & 1023, 3));
+
+            if (++m_SampleIndex >= k_SampleCount)
+                m_SampleIndex = 0;
+
+            return offset;
+        }
+
+        private float GetHaltonValue(int index, int radix)
         {
             float result = 0f;
             float fraction = 1f / (float)radix;
@@ -135,21 +164,25 @@ namespace UnityEngine.PostProcessing
             return result;
         }
 
-        Vector2 GenerateRandomOffset()
+        private Matrix4x4 GetOrthographicProjectionMatrix(Vector2 offset)
         {
-            var offset = new Vector2(
-                    GetHaltonValue(m_SampleIndex & 1023, 2),
-                    GetHaltonValue(m_SampleIndex & 1023, 3));
+            float vertical = context.camera.orthographicSize;
+            float horizontal = vertical * context.camera.aspect;
 
-            if (++m_SampleIndex >= k_SampleCount)
-                m_SampleIndex = 0;
+            offset.x *= horizontal / (0.5f * context.width);
+            offset.y *= vertical / (0.5f * context.height);
 
-            return offset;
+            float left = offset.x - horizontal;
+            float right = offset.x + horizontal;
+            float top = offset.y + vertical;
+            float bottom = offset.y - vertical;
+
+            return Matrix4x4.Ortho(left, right, bottom, top, context.camera.nearClipPlane, context.camera.farClipPlane);
         }
 
         // Adapted heavily from PlayDead's TAA code
         // https://github.com/playdeadgames/temporal/blob/master/Assets/Scripts/Extensions.cs
-        Matrix4x4 GetPerspectiveProjectionMatrix(Vector2 offset)
+        private Matrix4x4 GetPerspectiveProjectionMatrix(Vector2 offset)
         {
             float vertical = Mathf.Tan(0.5f * Mathf.Deg2Rad * context.camera.fieldOfView);
             float horizontal = vertical * context.camera.aspect;
@@ -187,30 +220,23 @@ namespace UnityEngine.PostProcessing
             return matrix;
         }
 
-        Matrix4x4 GetOrthographicProjectionMatrix(Vector2 offset)
+        #endregion Private Methods
+
+        #region Private Classes
+
+        private static class Uniforms
         {
-            float vertical = context.camera.orthographicSize;
-            float horizontal = vertical * context.camera.aspect;
+            #region Internal Fields
 
-            offset.x *= horizontal / (0.5f * context.width);
-            offset.y *= vertical / (0.5f * context.height);
+            internal static int _FinalBlendParameters = Shader.PropertyToID("_FinalBlendParameters");
+            internal static int _HistoryTex = Shader.PropertyToID("_HistoryTex");
+            internal static int _Jitter = Shader.PropertyToID("_Jitter");
+            internal static int _MainTex = Shader.PropertyToID("_MainTex");
+            internal static int _SharpenParameters = Shader.PropertyToID("_SharpenParameters");
 
-            float left = offset.x - horizontal;
-            float right = offset.x + horizontal;
-            float top = offset.y + vertical;
-            float bottom = offset.y - vertical;
-
-            return Matrix4x4.Ortho(left, right, bottom, top, context.camera.nearClipPlane, context.camera.farClipPlane);
+            #endregion Internal Fields
         }
 
-        public override void OnDisable()
-        {
-            if (m_HistoryTexture != null)
-                RenderTexture.ReleaseTemporary(m_HistoryTexture);
-
-            m_HistoryTexture = null;
-            m_SampleIndex = 0;
-            ResetHistory();
-        }
+        #endregion Private Classes
     }
 }

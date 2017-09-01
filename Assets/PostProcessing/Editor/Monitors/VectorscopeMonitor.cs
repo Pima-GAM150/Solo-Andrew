@@ -6,18 +6,28 @@ namespace UnityEditor.PostProcessing
 {
     public class VectorscopeMonitor : PostProcessingMonitor
     {
-        static GUIContent s_MonitorTitle = new GUIContent("Vectorscope");
+        #region Private Fields
 
-        ComputeShader m_ComputeShader;
-        ComputeBuffer m_Buffer;
-        Material m_Material;
-        RenderTexture m_VectorscopeTexture;
-        Rect m_MonitorAreaRect;
+        private static GUIContent s_MonitorTitle = new GUIContent("Vectorscope");
+
+        private ComputeBuffer m_Buffer;
+        private ComputeShader m_ComputeShader;
+        private Material m_Material;
+        private Rect m_MonitorAreaRect;
+        private RenderTexture m_VectorscopeTexture;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public VectorscopeMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/VectorscopeCompute.compute");
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public override void Dispose()
         {
@@ -32,36 +42,33 @@ namespace UnityEditor.PostProcessing
             m_Buffer = null;
         }
 
-        public override bool IsSupported()
-        {
-            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
-        }
-
         public override GUIContent GetMonitorTitle()
         {
             return s_MonitorTitle;
         }
 
-        public override void OnMonitorSettings()
+        public override bool IsSupported()
         {
-            EditorGUI.BeginChangeCheck();
+            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
+        }
 
-            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
-            float exposure = m_MonitorSettings.vectorscopeExposure;
-            bool showBackground = m_MonitorSettings.vectorscopeShowBackground;
+        public override void OnFrameData(RenderTexture source)
+        {
+            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
+                return;
 
-            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the vectorscope in play mode; this may impact performances."), FxStyles.preButton);
-            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
-            showBackground = GUILayout.Toggle(showBackground, new GUIContent(FxStyles.checkerIcon, "Show an YUV background in the vectorscope."), FxStyles.preButton);
+            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
+                return;
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Vectorscope Settings Changed");
-                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
-                m_MonitorSettings.vectorscopeExposure = exposure;
-                m_MonitorSettings.vectorscopeShowBackground = showBackground;
-                InternalEditorUtility.RepaintAllViews();
-            }
+            float ratio = (float)source.width / (float)source.height;
+            int h = 384;
+            int w = Mathf.FloorToInt(h * ratio);
+
+            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
+            Graphics.Blit(source, rt);
+            ComputeVectorscope(rt);
+            m_BaseEditor.Repaint();
+            RenderTexture.ReleaseTemporary(rt);
         }
 
         public override void OnMonitorGUI(Rect r)
@@ -170,31 +177,33 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        public override void OnFrameData(RenderTexture source)
+        public override void OnMonitorSettings()
         {
-            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
-                return;
+            EditorGUI.BeginChangeCheck();
 
-            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
-                return;
+            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
+            float exposure = m_MonitorSettings.vectorscopeExposure;
+            bool showBackground = m_MonitorSettings.vectorscopeShowBackground;
 
-            float ratio = (float)source.width / (float)source.height;
-            int h = 384;
-            int w = Mathf.FloorToInt(h * ratio);
+            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the vectorscope in play mode; this may impact performances."), FxStyles.preButton);
+            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
+            showBackground = GUILayout.Toggle(showBackground, new GUIContent(FxStyles.checkerIcon, "Show an YUV background in the vectorscope."), FxStyles.preButton);
 
-            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
-            Graphics.Blit(source, rt);
-            ComputeVectorscope(rt);
-            m_BaseEditor.Repaint();
-            RenderTexture.ReleaseTemporary(rt);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Vectorscope Settings Changed");
+                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
+                m_MonitorSettings.vectorscopeExposure = exposure;
+                m_MonitorSettings.vectorscopeShowBackground = showBackground;
+                InternalEditorUtility.RepaintAllViews();
+            }
         }
 
-        void CreateBuffer(int width, int height)
-        {
-            m_Buffer = new ComputeBuffer(width * height, sizeof(uint));
-        }
+        #endregion Public Methods
 
-        void ComputeVectorscope(RenderTexture source)
+        #region Private Methods
+
+        private void ComputeVectorscope(RenderTexture source)
         {
             if (m_Buffer == null)
             {
@@ -237,5 +246,12 @@ namespace UnityEditor.PostProcessing
             m_Material.SetBuffer("_Vectorscope", m_Buffer);
             m_Material.SetVector("_Size", new Vector2(m_VectorscopeTexture.width, m_VectorscopeTexture.height));
         }
+
+        private void CreateBuffer(int width, int height)
+        {
+            m_Buffer = new ComputeBuffer(width * height, sizeof(uint));
+        }
+
+        #endregion Private Methods
     }
 }

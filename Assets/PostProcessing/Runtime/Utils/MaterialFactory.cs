@@ -3,15 +3,35 @@ using System.Collections.Generic;
 
 namespace UnityEngine.PostProcessing
 {
-    using UnityObject = Object;
-
     public sealed class MaterialFactory : IDisposable
     {
-        Dictionary<string, Material> m_Materials;
+        #region Private Fields
+
+        private Dictionary<string, Material> m_Materials;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public MaterialFactory()
         {
             m_Materials = new Dictionary<string, Material>();
+        }
+
+        #endregion Public Constructors
+
+        #region Public Methods
+
+        public void Dispose()
+        {
+            var enumerator = m_Materials.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                var material = enumerator.Current.Value;
+                GraphicsUtils.Destroy(material);
+            }
+
+            m_Materials.Clear();
         }
 
         public Material Get(string shaderName)
@@ -37,16 +57,6 @@ namespace UnityEngine.PostProcessing
             return material;
         }
 
-        public void Dispose()
-        {
-            var enumerator = m_Materials.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                var material = enumerator.Current.Value;
-                GraphicsUtils.Destroy(material);
-            }
-
-            m_Materials.Clear();
-        }
+        #endregion Public Methods
     }
 }

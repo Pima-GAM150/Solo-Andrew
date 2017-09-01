@@ -7,10 +7,16 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(GrainModel))]
     public class GrainModelEditor : PostProcessingModelEditor
     {
-        SerializedProperty m_Colored;
-        SerializedProperty m_Intensity;
-        SerializedProperty m_Size;
-        SerializedProperty m_LuminanceContribution;
+        #region Private Fields
+
+        private SerializedProperty m_Colored;
+        private SerializedProperty m_Intensity;
+        private SerializedProperty m_LuminanceContribution;
+        private SerializedProperty m_Size;
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         public override void OnEnable()
         {
@@ -27,5 +33,7 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.PropertyField(m_Size);
             EditorGUILayout.PropertyField(m_Colored);
         }
+
+        #endregion Public Methods
     }
 }

@@ -2,20 +2,45 @@
 using EraseGame.Delegates;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class ProceduralWorldScroller : MonoBehaviour
 {
+    #region Public Events
+
+    /// <summary>
+    /// Called when an aim angle has been decided.
+    /// </summary>
+    public event EmptyEvent OnAimComplete;
+
     /// <summary>
     /// Called when a new horizontal bar is instantiated.
     /// </summary>
     public event BarEvent OnBarSpawned;
 
     /// <summary>
-    /// Time to pause after an aim angle has been determined.
+    /// Called when the post-aim timer has completed, just before firing.
     /// </summary>
-    public float BreakTime = 1f;
+    public event EmptyEvent OnBreakTimerComplete;
+
+    /// <summary>
+    /// Called if the fire event failed (due to hitting a block or other error)
+    /// </summary>
+    public event EmptyEvent OnFireFailed;
+
+    /// <summary>
+    /// Called if the fire event was successful.
+    /// </summary>
+    public event EmptyEvent OnFireSuccess;
+
+    #endregion Public Events
+
+    #region Public Fields
+
+    /// <summary>
+    /// Maximum angle to aim in for both positive and negative values.
+    /// </summary>
+    public float AimAngleMax = 60f;
 
     /// <summary>
     /// Location to fire from
@@ -33,9 +58,9 @@ public class ProceduralWorldScroller : MonoBehaviour
     public float AimTime = 50f;
 
     /// <summary>
-    /// Maximum angle to aim in for both positive and negative values.
+    /// Time to pause after an aim angle has been determined.
     /// </summary>
-    public float AimAngleMax = 60f;
+    public float BreakTime = 1f;
 
     /// <summary>
     ///  Prefab to spawn when moving to the next level.
@@ -57,26 +82,37 @@ public class ProceduralWorldScroller : MonoBehaviour
     /// </summary>
     public bool ShouldDrawAim;
 
+    #endregion Public Fields
+
+    #region Private Fields
+
     private List<HorizontalBar> _activeBars;
     private float _aimAngle;
     private LineRenderer _lineRenderer;
     private float _nextAimLocationX;
 
+    #endregion Private Fields
+
+    #region Public Methods
+
     /// <summary>
-    /// Spawns the next horizontal bar and starts the bar scroll animation.
+    /// Spawns the next horizontal bar
     /// </summary>
-    public void SpawnNextBar()
+    public void SpawnNextBar(Vector3 position)
     {
-        var newBar = Instantiate(HorizontalBarPrefab, transform, false);
+        var newBar = Instantiate(HorizontalBarPrefab, position, Quaternion.identity, transform);
         OnBarSpawned?.Invoke(newBar);
         _activeBars.Add(newBar);
-        StartCoroutine(ScrollBars());
     }
+
+    #endregion Public Methods
+
+    #region Private Methods
 
     /// <summary>
     /// Starts the animing sequence and ends in firing.
     /// </summary>
-    private IEnumerator AimAndFire()
+    private IEnumerator Aim()
     {
         // Start rendering our line.
         ShouldDrawAim = true;
@@ -91,26 +127,6 @@ public class ProceduralWorldScroller : MonoBehaviour
             _aimAngle = Mathf.PingPong(Time.time * AimSpeed, AimAngleMax * 2f) - AimAngleMax;
             yield return null;
         }
-        // Allow the player to attack the blocks.
-        _activeBars.Last().CanDamage = true;
-
-        counter = 0f;
-        // Give the player some time to try and react.
-        while (counter < BreakTime)
-        {
-            counter += Time.deltaTime;
-            yield return null;
-        }
-        // Hide aiming line
-        ShouldDrawAim = false;
-        _lineRenderer.StopRendering();
-        //Fire!
-        TryFire();
-    }
-
-    private void TryFire()
-    {
-        //TODO
     }
 
     private void Awake()
@@ -170,6 +186,12 @@ public class ProceduralWorldScroller : MonoBehaviour
         return points;
     }
 
+    private void OnBlockDied(BreakableBlock block)
+    {
+        // save our next aiming x.
+        _nextAimLocationX = block.transform.position.x;
+    }
+
     private IEnumerator ScrollBars()
     {
         // move all bars down until our bottom-most bar is at the bottom.
@@ -182,33 +204,35 @@ public class ProceduralWorldScroller : MonoBehaviour
         _activeBars.RemoveAt(0);
         // set our aim location to the next aim location we got when the block died.
         AimLocation.x = _nextAimLocationX;
-        StartCoroutine(AimAndFire());
     }
 
     private void SetupInitialStage()
     {
         // spawn our first bar at our location (should be 0,0)
-        var firstBar = Instantiate(HorizontalBarPrefab, transform, false);
-        _activeBars.Add(firstBar);
+        SpawnNextBar(transform.position);
         // get the location of the randomly destroyed hole
-        var destroyedBlockLocation = firstBar.DestroyRandomBlock().position;
+        var destroyedBlockLocation = _activeBars[0].DestroyRandomBlock().position;
         // spawn the second bar at the initial spawn distance
-        var secondBar = Instantiate(HorizontalBarPrefab, new Vector3(0f, InitialSpawnDistance, 0f), Quaternion.identity, transform);
-        _activeBars.Add(secondBar);
-        // subscribe to the block dying so we can do some stuff.
-        secondBar.OnBlockDied += OnBlockDied;
+        SpawnNextBar(transform.position + (Vector3.up * InitialSpawnDistance));
         // offset it so we're aiming out the top of a block.
         destroyedBlockLocation.y += 0.5f;
         // set our aim location to the destroyed blocks location.
         AimLocation = destroyedBlockLocation;
         // start the game essentially.
-        StartCoroutine(AimAndFire());
     }
 
-    private void OnBlockDied(BreakableBlock block)
+    private IEnumerator StartFiring()
     {
-        // save our next aiming x.
-        _nextAimLocationX = block.transform.position.x;
+        var counter = 0f;
+        // Give the player some time to try and react.
+        while (counter < BreakTime)
+        {
+            counter += Time.deltaTime;
+            yield return null;
+        }
+        // Hide aiming line
+        ShouldDrawAim = false;
+        _lineRenderer.StopRendering();
     }
 
     private void Update()
@@ -216,4 +240,6 @@ public class ProceduralWorldScroller : MonoBehaviour
         if (ShouldDrawAim)
             DrawAim(Quaternion.AngleAxis(_aimAngle, Vector3.forward) * Vector2.up);
     }
+
+    #endregion Private Methods
 }

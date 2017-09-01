@@ -2,13 +2,13 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class GrainComponent : PostProcessingComponentRenderTexture<GrainModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _Grain_Params1 = Shader.PropertyToID("_Grain_Params1");
-            internal static readonly int _Grain_Params2 = Shader.PropertyToID("_Grain_Params2");
-            internal static readonly int _GrainTex      = Shader.PropertyToID("_GrainTex");
-            internal static readonly int _Phase         = Shader.PropertyToID("_Phase");
-        }
+        #region Private Fields
+
+        private RenderTexture m_GrainLookupRT;
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -21,7 +21,9 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        RenderTexture m_GrainLookupRT;
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override void OnDisable()
         {
@@ -75,5 +77,23 @@ namespace UnityEngine.PostProcessing
             uberMaterial.SetVector(Uniforms._Grain_Params1, new Vector2(settings.luminanceContribution, settings.intensity * 20f));
             uberMaterial.SetVector(Uniforms._Grain_Params2, new Vector4((float)context.width / (float)m_GrainLookupRT.width / settings.size, (float)context.height / (float)m_GrainLookupRT.height / settings.size, rndOffsetX, rndOffsetY));
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _Grain_Params1 = Shader.PropertyToID("_Grain_Params1");
+            internal static readonly int _Grain_Params2 = Shader.PropertyToID("_Grain_Params2");
+            internal static readonly int _GrainTex = Shader.PropertyToID("_GrainTex");
+            internal static readonly int _Phase = Shader.PropertyToID("_Phase");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

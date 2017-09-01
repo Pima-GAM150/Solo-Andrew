@@ -6,37 +6,53 @@ namespace UnityEngine.PostProcessing
 
     public sealed class AmbientOcclusionComponent : PostProcessingComponentCommandBuffer<AmbientOcclusionModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _Intensity         = Shader.PropertyToID("_Intensity");
-            internal static readonly int _Radius            = Shader.PropertyToID("_Radius");
-            internal static readonly int _FogParams         = Shader.PropertyToID("_FogParams");
-            internal static readonly int _Downsample        = Shader.PropertyToID("_Downsample");
-            internal static readonly int _SampleCount       = Shader.PropertyToID("_SampleCount");
-            internal static readonly int _OcclusionTexture1 = Shader.PropertyToID("_OcclusionTexture1");
-            internal static readonly int _OcclusionTexture2 = Shader.PropertyToID("_OcclusionTexture2");
-            internal static readonly int _OcclusionTexture  = Shader.PropertyToID("_OcclusionTexture");
-            internal static readonly int _MainTex           = Shader.PropertyToID("_MainTex");
-            internal static readonly int _TempRT            = Shader.PropertyToID("_TempRT");
-        }
+        #region Private Fields
 
-        const string k_BlitShaderString = "Hidden/Post FX/Blit";
-        const string k_ShaderString = "Hidden/Post FX/Ambient Occlusion";
+        private const string k_BlitShaderString = "Hidden/Post FX/Blit";
 
-        readonly RenderTargetIdentifier[] m_MRT =
+        private const string k_ShaderString = "Hidden/Post FX/Ambient Occlusion";
+
+        private readonly RenderTargetIdentifier[] m_MRT =
         {
             BuiltinRenderTextureType.GBuffer0, // Albedo, Occ
             BuiltinRenderTextureType.CameraTarget // Ambient
         };
 
-        enum OcclusionSource
+        #endregion Private Fields
+
+        #region Private Enums
+
+        private enum OcclusionSource
         {
             DepthTexture,
             DepthNormalsTexture,
             GBuffer
         }
 
-        OcclusionSource occlusionSource
+        #endregion Private Enums
+
+        #region Public Properties
+
+        public override bool active
+        {
+            get
+            {
+                return model.enabled
+                       && model.settings.intensity > 0f
+                       && !context.interrupted;
+            }
+        }
+
+        #endregion Public Properties
+
+        #region Private Properties
+
+        private bool ambientOnlySupported
+        {
+            get { return context.isHdr && model.settings.ambientOnly && context.isGBufferAvailable && !model.settings.forceForwardCompatibility; }
+        }
+
+        private OcclusionSource occlusionSource
         {
             get
             {
@@ -50,19 +66,15 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        bool ambientOnlySupported
-        {
-            get { return context.isHdr && model.settings.ambientOnly && context.isGBufferAvailable && !model.settings.forceForwardCompatibility; }
-        }
+        #endregion Private Properties
 
-        public override bool active
+        #region Public Methods
+
+        public override CameraEvent GetCameraEvent()
         {
-            get
-            {
-                return model.enabled
-                       && model.settings.intensity > 0f
-                       && !context.interrupted;
-            }
+            return ambientOnlySupported && !context.profile.debugViews.IsModeActive(DebugMode.AmbientOcclusion)
+                   ? CameraEvent.BeforeReflections
+                   : CameraEvent.BeforeImageEffectsOpaque;
         }
 
         public override DepthTextureMode GetCameraFlags()
@@ -81,13 +93,6 @@ namespace UnityEngine.PostProcessing
         public override string GetName()
         {
             return "Ambient Occlusion";
-        }
-
-        public override CameraEvent GetCameraEvent()
-        {
-            return ambientOnlySupported && !context.profile.debugViews.IsModeActive(DebugMode.AmbientOcclusion)
-                   ? CameraEvent.BeforeReflections
-                   : CameraEvent.BeforeImageEffectsOpaque;
         }
 
         public override void PopulateCommandBuffer(CommandBuffer cb)
@@ -113,9 +118,11 @@ namespace UnityEngine.PostProcessing
                     case FogMode.Linear:
                         material.EnableKeyword("FOG_LINEAR");
                         break;
+
                     case FogMode.Exponential:
                         material.EnableKeyword("FOG_EXP");
                         break;
+
                     case FogMode.ExponentialSquared:
                         material.EnableKeyword("FOG_EXP2");
                         break;
@@ -181,5 +188,29 @@ namespace UnityEngine.PostProcessing
 
             cb.ReleaseTemporaryRT(rtMask);
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _Downsample = Shader.PropertyToID("_Downsample");
+            internal static readonly int _FogParams = Shader.PropertyToID("_FogParams");
+            internal static readonly int _Intensity = Shader.PropertyToID("_Intensity");
+            internal static readonly int _MainTex = Shader.PropertyToID("_MainTex");
+            internal static readonly int _OcclusionTexture = Shader.PropertyToID("_OcclusionTexture");
+            internal static readonly int _OcclusionTexture1 = Shader.PropertyToID("_OcclusionTexture1");
+            internal static readonly int _OcclusionTexture2 = Shader.PropertyToID("_OcclusionTexture2");
+            internal static readonly int _Radius = Shader.PropertyToID("_Radius");
+            internal static readonly int _SampleCount = Shader.PropertyToID("_SampleCount");
+            internal static readonly int _TempRT = Shader.PropertyToID("_TempRT");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

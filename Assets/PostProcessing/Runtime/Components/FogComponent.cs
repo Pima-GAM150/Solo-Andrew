@@ -4,16 +4,13 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class FogComponent : PostProcessingComponentCommandBuffer<FogModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _FogColor = Shader.PropertyToID("_FogColor");
-            internal static readonly int _Density  = Shader.PropertyToID("_Density");
-            internal static readonly int _Start    = Shader.PropertyToID("_Start");
-            internal static readonly int _End      = Shader.PropertyToID("_End");
-            internal static readonly int _TempRT   = Shader.PropertyToID("_TempRT");
-        }
+        #region Private Fields
 
-        const string k_ShaderString = "Hidden/Post FX/Fog";
+        private const string k_ShaderString = "Hidden/Post FX/Fog";
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -26,9 +23,13 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        public override string GetName()
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public override CameraEvent GetCameraEvent()
         {
-            return "Fog";
+            return CameraEvent.AfterImageEffectsOpaque;
         }
 
         public override DepthTextureMode GetCameraFlags()
@@ -36,9 +37,9 @@ namespace UnityEngine.PostProcessing
             return DepthTextureMode.Depth;
         }
 
-        public override CameraEvent GetCameraEvent()
+        public override string GetName()
         {
-            return CameraEvent.AfterImageEffectsOpaque;
+            return "Fog";
         }
 
         public override void PopulateCommandBuffer(CommandBuffer cb)
@@ -58,9 +59,11 @@ namespace UnityEngine.PostProcessing
                 case FogMode.Linear:
                     material.EnableKeyword("FOG_LINEAR");
                     break;
+
                 case FogMode.Exponential:
                     material.EnableKeyword("FOG_EXP");
                     break;
+
                 case FogMode.ExponentialSquared:
                     material.EnableKeyword("FOG_EXP2");
                     break;
@@ -75,5 +78,24 @@ namespace UnityEngine.PostProcessing
             cb.Blit(Uniforms._TempRT, BuiltinRenderTextureType.CameraTarget, material, settings.excludeSkybox ? 1 : 0);
             cb.ReleaseTemporaryRT(Uniforms._TempRT);
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _Density = Shader.PropertyToID("_Density");
+            internal static readonly int _End = Shader.PropertyToID("_End");
+            internal static readonly int _FogColor = Shader.PropertyToID("_FogColor");
+            internal static readonly int _Start = Shader.PropertyToID("_Start");
+            internal static readonly int _TempRT = Shader.PropertyToID("_TempRT");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

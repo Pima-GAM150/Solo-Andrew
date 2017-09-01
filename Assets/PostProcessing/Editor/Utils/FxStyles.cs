@@ -4,32 +4,32 @@ namespace UnityEditor.PostProcessing
 {
     public static class FxStyles
     {
-        public static GUIStyle tickStyleRight;
-        public static GUIStyle tickStyleLeft;
-        public static GUIStyle tickStyleCenter;
-
-        public static GUIStyle preSlider;
-        public static GUIStyle preSliderThumb;
-        public static GUIStyle preButton;
-        public static GUIStyle preDropdown;
-
-        public static GUIStyle preLabel;
-        public static GUIStyle hueCenterCursor;
-        public static GUIStyle hueRangeCursor;
+        #region Public Fields
 
         public static GUIStyle centeredBoldLabel;
-        public static GUIStyle wheelThumb;
-        public static Vector2 wheelThumbSize;
-
+        public static GUIStyle centeredMiniLabel;
+        public static Texture2D checkerIcon;
         public static GUIStyle header;
         public static GUIStyle headerCheckbox;
         public static GUIStyle headerFoldout;
-
-        public static Texture2D playIcon;
-        public static Texture2D checkerIcon;
+        public static GUIStyle hueCenterCursor;
+        public static GUIStyle hueRangeCursor;
         public static Texture2D paneOptionsIcon;
+        public static Texture2D playIcon;
+        public static GUIStyle preButton;
+        public static GUIStyle preDropdown;
+        public static GUIStyle preLabel;
+        public static GUIStyle preSlider;
+        public static GUIStyle preSliderThumb;
+        public static GUIStyle tickStyleCenter;
+        public static GUIStyle tickStyleLeft;
+        public static GUIStyle tickStyleRight;
+        public static GUIStyle wheelThumb;
+        public static Vector2 wheelThumbSize;
 
-        public static GUIStyle centeredMiniLabel;
+        #endregion Public Fields
+
+        #region Public Constructors
 
         static FxStyles()
         {
@@ -107,5 +107,7 @@ namespace UnityEditor.PostProcessing
             else
                 paneOptionsIcon = (Texture2D)EditorGUIUtility.LoadRequired("Builtin Skins/LightSkin/Images/pane options.png");
         }
+
+        #endregion Public Constructors
     }
 }

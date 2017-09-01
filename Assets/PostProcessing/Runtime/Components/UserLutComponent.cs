@@ -2,11 +2,7 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class UserLutComponent : PostProcessingComponentRenderTexture<UserLutModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _UserLut        = Shader.PropertyToID("_UserLut");
-            internal static readonly int _UserLut_Params = Shader.PropertyToID("_UserLut_Params");
-        }
+        #region Public Properties
 
         public override bool active
         {
@@ -21,6 +17,17 @@ namespace UnityEngine.PostProcessing
             }
         }
 
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public void OnGUI()
+        {
+            var settings = model.settings;
+            var rect = new Rect(context.viewport.x * Screen.width + 8f, 8f, settings.lut.width, settings.lut.height);
+            GUI.DrawTexture(rect, settings.lut);
+        }
+
         public override void Prepare(Material uberMaterial)
         {
             var settings = model.settings;
@@ -29,11 +36,20 @@ namespace UnityEngine.PostProcessing
             uberMaterial.SetVector(Uniforms._UserLut_Params, new Vector4(1f / settings.lut.width, 1f / settings.lut.height, settings.lut.height - 1f, settings.contribution));
         }
 
-        public void OnGUI()
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
         {
-            var settings = model.settings;
-            var rect = new Rect(context.viewport.x * Screen.width + 8f, 8f, settings.lut.width, settings.lut.height);
-            GUI.DrawTexture(rect, settings.lut);
+            #region Internal Fields
+
+            internal static readonly int _UserLut = Shader.PropertyToID("_UserLut");
+            internal static readonly int _UserLut_Params = Shader.PropertyToID("_UserLut_Params");
+
+            #endregion Internal Fields
         }
+
+        #endregion Private Classes
     }
 }

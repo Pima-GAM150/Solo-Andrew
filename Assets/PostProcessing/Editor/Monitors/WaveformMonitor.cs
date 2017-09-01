@@ -6,18 +6,28 @@ namespace UnityEditor.PostProcessing
 {
     public class WaveformMonitor : PostProcessingMonitor
     {
-        static GUIContent s_MonitorTitle = new GUIContent("Waveform");
+        #region Private Fields
 
-        ComputeShader m_ComputeShader;
-        ComputeBuffer m_Buffer;
-        Material m_Material;
-        RenderTexture m_WaveformTexture;
-        Rect m_MonitorAreaRect;
+        private static GUIContent s_MonitorTitle = new GUIContent("Waveform");
+
+        private ComputeBuffer m_Buffer;
+        private ComputeShader m_ComputeShader;
+        private Material m_Material;
+        private Rect m_MonitorAreaRect;
+        private RenderTexture m_WaveformTexture;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public WaveformMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/WaveformCompute.compute");
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public override void Dispose()
         {
@@ -32,65 +42,33 @@ namespace UnityEditor.PostProcessing
             m_Buffer = null;
         }
 
-        public override bool IsSupported()
-        {
-            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
-        }
-
         public override GUIContent GetMonitorTitle()
         {
             return s_MonitorTitle;
         }
 
-        public override void OnMonitorSettings()
+        public override bool IsSupported()
         {
-            EditorGUI.BeginChangeCheck();
+            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
+        }
 
-            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
-            float exposure = m_MonitorSettings.waveformExposure;
-            bool Y = m_MonitorSettings.waveformY;
-            bool R = m_MonitorSettings.waveformR;
-            bool G = m_MonitorSettings.waveformG;
-            bool B = m_MonitorSettings.waveformB;
+        public override void OnFrameData(RenderTexture source)
+        {
+            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
+                return;
 
-            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the waveform in play mode; this may impact performances."), FxStyles.preButton);
+            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
+                return;
 
-            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
+            float ratio = (float)source.width / (float)source.height;
+            int h = 384;
+            int w = Mathf.FloorToInt(h * ratio);
 
-            Y = GUILayout.Toggle(Y, new GUIContent("Y", "Show the luminance waveform only."), FxStyles.preButton);
-
-            if (Y)
-            {
-                R = false;
-                G = false;
-                B = false;
-            }
-
-            R = GUILayout.Toggle(R, new GUIContent("R", "Show the red waveform."), FxStyles.preButton);
-            G = GUILayout.Toggle(G, new GUIContent("G", "Show the green waveform."), FxStyles.preButton);
-            B = GUILayout.Toggle(B, new GUIContent("B", "Show the blue waveform."), FxStyles.preButton);
-
-            if (R || G || B)
-                Y = false;
-
-            if (!Y && !R && !G && !B)
-            {
-                R = true;
-                G = true;
-                B = true;
-            }
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Waveforme Settings Changed");
-                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
-                m_MonitorSettings.waveformExposure = exposure;
-                m_MonitorSettings.waveformY = Y;
-                m_MonitorSettings.waveformR = R;
-                m_MonitorSettings.waveformG = G;
-                m_MonitorSettings.waveformB = B;
-                InternalEditorUtility.RepaintAllViews();
-            }
+            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
+            Graphics.Blit(source, rt);
+            ComputeWaveform(rt);
+            m_BaseEditor.Repaint();
+            RenderTexture.ReleaseTemporary(rt);
         }
 
         public override void OnMonitorGUI(Rect r)
@@ -205,31 +183,62 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        public override void OnFrameData(RenderTexture source)
+        public override void OnMonitorSettings()
         {
-            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
-                return;
+            EditorGUI.BeginChangeCheck();
 
-            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
-                return;
+            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
+            float exposure = m_MonitorSettings.waveformExposure;
+            bool Y = m_MonitorSettings.waveformY;
+            bool R = m_MonitorSettings.waveformR;
+            bool G = m_MonitorSettings.waveformG;
+            bool B = m_MonitorSettings.waveformB;
 
-            float ratio = (float)source.width / (float)source.height;
-            int h = 384;
-            int w = Mathf.FloorToInt(h * ratio);
+            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the waveform in play mode; this may impact performances."), FxStyles.preButton);
 
-            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
-            Graphics.Blit(source, rt);
-            ComputeWaveform(rt);
-            m_BaseEditor.Repaint();
-            RenderTexture.ReleaseTemporary(rt);
+            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
+
+            Y = GUILayout.Toggle(Y, new GUIContent("Y", "Show the luminance waveform only."), FxStyles.preButton);
+
+            if (Y)
+            {
+                R = false;
+                G = false;
+                B = false;
+            }
+
+            R = GUILayout.Toggle(R, new GUIContent("R", "Show the red waveform."), FxStyles.preButton);
+            G = GUILayout.Toggle(G, new GUIContent("G", "Show the green waveform."), FxStyles.preButton);
+            B = GUILayout.Toggle(B, new GUIContent("B", "Show the blue waveform."), FxStyles.preButton);
+
+            if (R || G || B)
+                Y = false;
+
+            if (!Y && !R && !G && !B)
+            {
+                R = true;
+                G = true;
+                B = true;
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Waveforme Settings Changed");
+                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
+                m_MonitorSettings.waveformExposure = exposure;
+                m_MonitorSettings.waveformY = Y;
+                m_MonitorSettings.waveformR = R;
+                m_MonitorSettings.waveformG = G;
+                m_MonitorSettings.waveformB = B;
+                InternalEditorUtility.RepaintAllViews();
+            }
         }
 
-        void CreateBuffer(int width, int height)
-        {
-            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
-        }
+        #endregion Public Methods
 
-        void ComputeWaveform(RenderTexture source)
+        #region Private Methods
+
+        private void ComputeWaveform(RenderTexture source)
         {
             if (m_Buffer == null)
             {
@@ -276,5 +285,12 @@ namespace UnityEditor.PostProcessing
             m_Material.SetVector("_Size", new Vector2(m_WaveformTexture.width, m_WaveformTexture.height));
             m_Material.SetVector("_Channels", channels);
         }
+
+        private void CreateBuffer(int width, int height)
+        {
+            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
+        }
+
+        #endregion Private Methods
     }
 }

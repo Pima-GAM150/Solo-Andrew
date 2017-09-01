@@ -2,13 +2,52 @@ namespace UnityEngine.PostProcessing
 {
     public class PostProcessingContext
     {
-        public PostProcessingProfile profile;
-        public Camera camera;
+        #region Public Fields
 
+        public Camera camera;
         public MaterialFactory materialFactory;
+        public PostProcessingProfile profile;
         public RenderTextureFactory renderTextureFactory;
 
+        #endregion Public Fields
+
+        #region Public Properties
+
+        public int height
+        {
+            get { return camera.pixelHeight; }
+        }
+
         public bool interrupted { get; private set; }
+
+        public bool isGBufferAvailable
+        {
+            get { return camera.actualRenderingPath == RenderingPath.DeferredShading; }
+        }
+
+        public bool isHdr
+        {
+            // No UNITY_5_6_OR_NEWER defined in early betas of 5.6
+#if UNITY_5_6 || UNITY_5_6_OR_NEWER
+            get { return camera.allowHDR; }
+#else
+            get { return camera.hdr; }
+#endif
+        }
+
+        public Rect viewport
+        {
+            get { return camera.rect; } // Normalized coordinates
+        }
+
+        public int width
+        {
+            get { return camera.pixelWidth; }
+        }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public void Interrupt()
         {
@@ -25,36 +64,6 @@ namespace UnityEngine.PostProcessing
             return this;
         }
 
-        #region Helpers
-        public bool isGBufferAvailable
-        {
-            get { return camera.actualRenderingPath == RenderingPath.DeferredShading; }
-        }
-
-        public bool isHdr
-        {
-            // No UNITY_5_6_OR_NEWER defined in early betas of 5.6
-#if UNITY_5_6 || UNITY_5_6_OR_NEWER
-            get { return camera.allowHDR; }
-#else
-            get { return camera.hdr; }
-#endif
-        }
-
-        public int width
-        {
-            get { return camera.pixelWidth; }
-        }
-
-        public int height
-        {
-            get { return camera.pixelHeight; }
-        }
-
-        public Rect viewport
-        {
-            get { return camera.rect; } // Normalized coordinates
-        }
-        #endregion
+        #endregion Public Methods
     }
 }

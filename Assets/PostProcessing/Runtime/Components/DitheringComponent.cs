@@ -2,11 +2,18 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class DitheringComponent : PostProcessingComponentRenderTexture<DitheringModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _DitheringTex = Shader.PropertyToID("_DitheringTex");
-            internal static readonly int _DitheringCoords = Shader.PropertyToID("_DitheringCoords");
-        }
+        #region Private Fields
+
+        private const int k_TextureCount = 64;
+
+        // Holds 64 64x64 Alpha8 textures (256kb total)
+        private Texture2D[] noiseTextures;
+
+        private int textureIndex = 0;
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -17,23 +24,13 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        // Holds 64 64x64 Alpha8 textures (256kb total)
-        Texture2D[] noiseTextures;
-        int textureIndex = 0;
+        #endregion Public Properties
 
-        const int k_TextureCount = 64;
+        #region Public Methods
 
         public override void OnDisable()
         {
             noiseTextures = null;
-        }
-
-        void LoadNoiseTextures()
-        {
-            noiseTextures = new Texture2D[k_TextureCount];
-
-            for (int i = 0; i < k_TextureCount; i++)
-                noiseTextures[i] = Resources.Load<Texture2D>("Bluenoise64/LDR_LLL1_" + i);
         }
 
         public override void Prepare(Material uberMaterial)
@@ -67,5 +64,33 @@ namespace UnityEngine.PostProcessing
                 rndOffsetY
             ));
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void LoadNoiseTextures()
+        {
+            noiseTextures = new Texture2D[k_TextureCount];
+
+            for (int i = 0; i < k_TextureCount; i++)
+                noiseTextures[i] = Resources.Load<Texture2D>("Bluenoise64/LDR_LLL1_" + i);
+        }
+
+        #endregion Private Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _DitheringCoords = Shader.PropertyToID("_DitheringCoords");
+            internal static readonly int _DitheringTex = Shader.PropertyToID("_DitheringTex");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

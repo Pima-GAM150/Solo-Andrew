@@ -1,22 +1,30 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
 {
     public static class EditorGUIHelper
     {
+        #region Private Fields
+
+        private static Dictionary<string, GUIContent> s_GUIContentCache;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
         static EditorGUIHelper()
         {
             s_GUIContentCache = new Dictionary<string, GUIContent>();
         }
 
-        #region GUIContent caching
+        #endregion Public Constructors
 
-        static Dictionary<string, GUIContent> s_GUIContentCache;
+        #region Public Methods
 
         public static GUIContent GetContent(string textAndTooltip)
         {
@@ -38,8 +46,6 @@ namespace UnityEditor.PostProcessing
 
             return content;
         }
-
-        #endregion
 
         public static bool Header(string title, SerializedProperty group, Action resetAction)
         {
@@ -157,15 +163,11 @@ namespace UnityEditor.PostProcessing
             return display;
         }
 
-        static void CopySettings(SerializedProperty settings)
-        {
-            var t = typeof(PostProcessingProfile);
-            var settingsStruct = ReflectionUtils.GetFieldValueFromPath(settings.serializedObject.targetObject, ref t, settings.propertyPath);
-            var serializedString = t.ToString() + '|' + JsonUtility.ToJson(settingsStruct);
-            EditorGUIUtility.systemCopyBuffer = serializedString;
-        }
+        #endregion Public Methods
 
-        static bool CanPaste(SerializedProperty settings)
+        #region Private Methods
+
+        private static bool CanPaste(SerializedProperty settings)
         {
             var data = EditorGUIUtility.systemCopyBuffer;
 
@@ -181,7 +183,15 @@ namespace UnityEditor.PostProcessing
             return parts[0] == field.FieldType.ToString();
         }
 
-        static void PasteSettings(SerializedProperty settings)
+        private static void CopySettings(SerializedProperty settings)
+        {
+            var t = typeof(PostProcessingProfile);
+            var settingsStruct = ReflectionUtils.GetFieldValueFromPath(settings.serializedObject.targetObject, ref t, settings.propertyPath);
+            var serializedString = t.ToString() + '|' + JsonUtility.ToJson(settingsStruct);
+            EditorGUIUtility.systemCopyBuffer = serializedString;
+        }
+
+        private static void PasteSettings(SerializedProperty settings)
         {
             Undo.RecordObject(settings.serializedObject.targetObject, "Paste effect settings");
             var field = ReflectionUtils.GetFieldInfoFromPath(settings.serializedObject.targetObject, settings.propertyPath);
@@ -190,5 +200,7 @@ namespace UnityEditor.PostProcessing
             var parent = ReflectionUtils.GetParentObject(settings.propertyPath, settings.serializedObject.targetObject);
             field.SetValue(parent, obj, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CultureInfo.CurrentCulture);
         }
+
+        #endregion Private Methods
     }
 }

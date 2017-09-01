@@ -6,18 +6,28 @@ namespace UnityEditor.PostProcessing
 {
     public class ParadeMonitor : PostProcessingMonitor
     {
-        static GUIContent s_MonitorTitle = new GUIContent("Parade");
+        #region Private Fields
 
-        ComputeShader m_ComputeShader;
-        ComputeBuffer m_Buffer;
-        Material m_Material;
-        RenderTexture m_WaveformTexture;
-        Rect m_MonitorAreaRect;
+        private static GUIContent s_MonitorTitle = new GUIContent("Parade");
+
+        private ComputeBuffer m_Buffer;
+        private ComputeShader m_ComputeShader;
+        private Material m_Material;
+        private Rect m_MonitorAreaRect;
+        private RenderTexture m_WaveformTexture;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public ParadeMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/WaveformCompute.compute");
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public override void Dispose()
         {
@@ -32,33 +42,33 @@ namespace UnityEditor.PostProcessing
             m_Buffer = null;
         }
 
-        public override bool IsSupported()
-        {
-            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
-        }
-
         public override GUIContent GetMonitorTitle()
         {
             return s_MonitorTitle;
         }
 
-        public override void OnMonitorSettings()
+        public override bool IsSupported()
         {
-            EditorGUI.BeginChangeCheck();
+            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
+        }
 
-            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
-            float exposure = m_MonitorSettings.paradeExposure;
+        public override void OnFrameData(RenderTexture source)
+        {
+            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
+                return;
 
-            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the parade in play mode; this may impact performances."), FxStyles.preButton);
-            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
+            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
+                return;
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Parade Settings Changed");
-                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
-                m_MonitorSettings.paradeExposure = exposure;
-                InternalEditorUtility.RepaintAllViews();
-            }
+            float ratio = ((float)source.width / (float)source.height) / 3f;
+            int h = 384;
+            int w = Mathf.FloorToInt(h * ratio);
+
+            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
+            Graphics.Blit(source, rt);
+            ComputeWaveform(rt);
+            m_BaseEditor.Repaint();
+            RenderTexture.ReleaseTemporary(rt);
         }
 
         public override void OnMonitorGUI(Rect r)
@@ -182,31 +192,30 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        public override void OnFrameData(RenderTexture source)
+        public override void OnMonitorSettings()
         {
-            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
-                return;
+            EditorGUI.BeginChangeCheck();
 
-            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
-                return;
+            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
+            float exposure = m_MonitorSettings.paradeExposure;
 
-            float ratio = ((float)source.width / (float)source.height) / 3f;
-            int h = 384;
-            int w = Mathf.FloorToInt(h * ratio);
+            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the parade in play mode; this may impact performances."), FxStyles.preButton);
+            exposure = GUILayout.HorizontalSlider(exposure, 0.05f, 0.3f, FxStyles.preSlider, FxStyles.preSliderThumb, GUILayout.Width(40f));
 
-            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
-            Graphics.Blit(source, rt);
-            ComputeWaveform(rt);
-            m_BaseEditor.Repaint();
-            RenderTexture.ReleaseTemporary(rt);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Parade Settings Changed");
+                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
+                m_MonitorSettings.paradeExposure = exposure;
+                InternalEditorUtility.RepaintAllViews();
+            }
         }
 
-        void CreateBuffer(int width, int height)
-        {
-            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
-        }
+        #endregion Public Methods
 
-        void ComputeWaveform(RenderTexture source)
+        #region Private Methods
+
+        private void ComputeWaveform(RenderTexture source)
         {
             if (m_Buffer == null)
             {
@@ -253,5 +262,12 @@ namespace UnityEditor.PostProcessing
             m_Material.SetVector("_Size", new Vector2(m_WaveformTexture.width, m_WaveformTexture.height));
             m_Material.SetVector("_Channels", channels);
         }
+
+        private void CreateBuffer(int width, int height)
+        {
+            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
+        }
+
+        #endregion Private Methods
     }
 }

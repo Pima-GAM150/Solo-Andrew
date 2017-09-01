@@ -6,17 +6,23 @@ using UnityEngine.PostProcessing;
 namespace UnityEditor.PostProcessing
 {
     [CustomPropertyDrawer(typeof(TrackballGroupAttribute))]
-    sealed class TrackballGroupDrawer : PropertyDrawer
+    internal sealed class TrackballGroupDrawer : PropertyDrawer
     {
-        static Material s_Material;
+        #region Private Fields
 
-        const int k_MinWheelSize = 80;
-        const int k_MaxWheelSize = 256;
-
-        bool m_ResetState;
+        private const int k_MaxWheelSize = 256;
+        private const int k_MinWheelSize = 80;
+        private static readonly int k_ThumbHash = "colorWheelThumb".GetHashCode();
 
         // Cached trackball computation methods (for speed reasons)
-        static Dictionary<string, MethodInfo> m_TrackballMethods = new Dictionary<string, MethodInfo>();
+        private static Dictionary<string, MethodInfo> m_TrackballMethods = new Dictionary<string, MethodInfo>();
+
+        private static Material s_Material;
+        private bool m_ResetState;
+
+        #endregion Private Fields
+
+        #region Internal Properties
 
         internal static int m_Size
         {
@@ -26,6 +32,15 @@ namespace UnityEditor.PostProcessing
                 size = Mathf.Clamp(size, k_MinWheelSize, k_MaxWheelSize);
                 return size;
             }
+        }
+
+        #endregion Internal Properties
+
+        #region Public Methods
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return m_Size + 4f * 2f + EditorGUIUtility.singleLineHeight * 3f;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -49,7 +64,66 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        void OnWheelGUI(Rect position, int size, SerializedProperty property)
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private Vector3 GetInput(Rect bounds, Vector3 hsv, float radius)
+        {
+            var e = Event.current;
+            var id = GUIUtility.GetControlID(k_ThumbHash, FocusType.Passive, bounds);
+
+            var mousePos = e.mousePosition;
+            var relativePos = mousePos - new Vector2(bounds.x, bounds.y);
+
+            if (e.type == EventType.MouseDown && GUIUtility.hotControl == 0 && bounds.Contains(mousePos))
+            {
+                if (e.button == 0)
+                {
+                    var center = new Vector2(bounds.x + radius, bounds.y + radius);
+                    float dist = Vector2.Distance(center, mousePos);
+
+                    if (dist <= radius)
+                    {
+                        e.Use();
+                        GetWheelHueSaturation(relativePos.x, relativePos.y, radius, out hsv.x, out hsv.y);
+                        GUIUtility.hotControl = id;
+                        GUI.changed = true;
+                    }
+                }
+                else if (e.button == 1)
+                {
+                    e.Use();
+                    GUI.changed = true;
+                    m_ResetState = true;
+                }
+            }
+            else if (e.type == EventType.MouseDrag && e.button == 0 && GUIUtility.hotControl == id)
+            {
+                e.Use();
+                GUI.changed = true;
+                GetWheelHueSaturation(relativePos.x, relativePos.y, radius, out hsv.x, out hsv.y);
+            }
+            else if (e.rawType == EventType.MouseUp && e.button == 0 && GUIUtility.hotControl == id)
+            {
+                e.Use();
+                GUIUtility.hotControl = 0;
+            }
+
+            return hsv;
+        }
+
+        private void GetWheelHueSaturation(float x, float y, float radius, out float hue, out float saturation)
+        {
+            float dx = (x - radius) / radius;
+            float dy = (y - radius) / radius;
+            float d = Mathf.Sqrt(dx * dx + dy * dy);
+            hue = Mathf.Atan2(dx, -dy);
+            hue = 1f - ((hue > 0) ? hue : (Mathf.PI * 2f) + hue) / (Mathf.PI * 2f);
+            saturation = Mathf.Clamp01(d);
+        }
+
+        private void OnWheelGUI(Rect position, int size, SerializedProperty property)
         {
             if (Event.current.type == EventType.Layout)
                 return;
@@ -154,7 +228,7 @@ namespace UnityEditor.PostProcessing
             property.colorValue = value;
         }
 
-        bool TryGetDisplayValue(Color color, SerializedProperty property, out Vector3 output)
+        private bool TryGetDisplayValue(Color color, SerializedProperty property, out Vector3 output)
         {
             output = Vector3.zero;
             MethodInfo method;
@@ -179,66 +253,6 @@ namespace UnityEditor.PostProcessing
             return true;
         }
 
-        static readonly int k_ThumbHash = "colorWheelThumb".GetHashCode();
-
-        Vector3 GetInput(Rect bounds, Vector3 hsv, float radius)
-        {
-            var e = Event.current;
-            var id = GUIUtility.GetControlID(k_ThumbHash, FocusType.Passive, bounds);
-
-            var mousePos = e.mousePosition;
-            var relativePos = mousePos - new Vector2(bounds.x, bounds.y);
-
-            if (e.type == EventType.MouseDown && GUIUtility.hotControl == 0 && bounds.Contains(mousePos))
-            {
-                if (e.button == 0)
-                {
-                    var center = new Vector2(bounds.x + radius, bounds.y + radius);
-                    float dist = Vector2.Distance(center, mousePos);
-
-                    if (dist <= radius)
-                    {
-                        e.Use();
-                        GetWheelHueSaturation(relativePos.x, relativePos.y, radius, out hsv.x, out hsv.y);
-                        GUIUtility.hotControl = id;
-                        GUI.changed = true;
-                    }
-                }
-                else if (e.button == 1)
-                {
-                    e.Use();
-                    GUI.changed = true;
-                    m_ResetState = true;
-                }
-            }
-            else if (e.type == EventType.MouseDrag && e.button == 0 && GUIUtility.hotControl == id)
-            {
-                e.Use();
-                GUI.changed = true;
-                GetWheelHueSaturation(relativePos.x, relativePos.y, radius, out hsv.x, out hsv.y);
-            }
-            else if (e.rawType == EventType.MouseUp && e.button == 0 && GUIUtility.hotControl == id)
-            {
-                e.Use();
-                GUIUtility.hotControl = 0;
-            }
-
-            return hsv;
-        }
-
-        void GetWheelHueSaturation(float x, float y, float radius, out float hue, out float saturation)
-        {
-            float dx = (x - radius) / radius;
-            float dy = (y - radius) / radius;
-            float d = Mathf.Sqrt(dx * dx + dy * dy);
-            hue = Mathf.Atan2(dx, -dy);
-            hue = 1f - ((hue > 0) ? hue : (Mathf.PI * 2f) + hue) / (Mathf.PI * 2f);
-            saturation = Mathf.Clamp01(d);
-        }
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return m_Size + 4f * 2f + EditorGUIUtility.singleLineHeight * 3f;
-        }
+        #endregion Private Methods
     }
 }

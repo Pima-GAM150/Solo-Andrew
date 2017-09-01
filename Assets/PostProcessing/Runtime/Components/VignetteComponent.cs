@@ -2,14 +2,7 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class VignetteComponent : PostProcessingComponentRenderTexture<VignetteModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _Vignette_Color    = Shader.PropertyToID("_Vignette_Color");
-            internal static readonly int _Vignette_Center   = Shader.PropertyToID("_Vignette_Center");
-            internal static readonly int _Vignette_Settings = Shader.PropertyToID("_Vignette_Settings");
-            internal static readonly int _Vignette_Mask     = Shader.PropertyToID("_Vignette_Mask");
-            internal static readonly int _Vignette_Opacity  = Shader.PropertyToID("_Vignette_Opacity");
-        }
+        #region Public Properties
 
         public override bool active
         {
@@ -19,6 +12,10 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override void Prepare(Material uberMaterial)
         {
@@ -42,5 +39,24 @@ namespace UnityEngine.PostProcessing
                 }
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _Vignette_Center = Shader.PropertyToID("_Vignette_Center");
+            internal static readonly int _Vignette_Color = Shader.PropertyToID("_Vignette_Color");
+            internal static readonly int _Vignette_Mask = Shader.PropertyToID("_Vignette_Mask");
+            internal static readonly int _Vignette_Opacity = Shader.PropertyToID("_Vignette_Opacity");
+            internal static readonly int _Vignette_Settings = Shader.PropertyToID("_Vignette_Settings");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

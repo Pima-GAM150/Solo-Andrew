@@ -7,8 +7,19 @@ namespace UnityEditor.PostProcessing
 
     public abstract class PostProcessingMonitor : IDisposable
     {
-        protected MonitorSettings m_MonitorSettings;
+        #region Protected Fields
+
         protected PostProcessingInspector m_BaseEditor;
+        protected MonitorSettings m_MonitorSettings;
+
+        #endregion Protected Fields
+
+        #region Public Methods
+
+        public virtual void Dispose()
+        { }
+
+        public abstract GUIContent GetMonitorTitle();
 
         public void Init(MonitorSettings monitorSettings, PostProcessingInspector baseEditor)
         {
@@ -18,17 +29,14 @@ namespace UnityEditor.PostProcessing
 
         public abstract bool IsSupported();
 
-        public abstract GUIContent GetMonitorTitle();
-
-        public virtual void OnMonitorSettings()
-        {}
+        public virtual void OnFrameData(RenderTexture source)
+        { }
 
         public abstract void OnMonitorGUI(Rect r);
 
-        public virtual void OnFrameData(RenderTexture source)
-        {}
+        public virtual void OnMonitorSettings()
+        { }
 
-        public virtual void Dispose()
-        {}
+        #endregion Public Methods
     }
 }

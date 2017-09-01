@@ -7,4 +7,6 @@ namespace EraseGame.Delegates
     public delegate void BlockEvent(BreakableBlock block);
 
     public delegate void ColorEvent(Color color);
+
+    public delegate void EmptyEvent();
 }

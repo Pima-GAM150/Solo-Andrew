@@ -1,35 +1,53 @@
-using UnityEngine;
-using UnityEngine.PostProcessing;
 using System;
 using System.Linq.Expressions;
+using UnityEngine;
+using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
 {
     public class PostProcessingModelEditor
     {
-        public PostProcessingModel target { get; internal set; }
-        public SerializedProperty serializedProperty { get; internal set; }
-
-        protected SerializedProperty m_SettingsProperty;
-        protected SerializedProperty m_EnabledProperty;
+        #region Internal Fields
 
         internal bool alwaysEnabled = false;
-        internal PostProcessingProfile profile;
         internal PostProcessingInspector inspector;
+        internal PostProcessingProfile profile;
 
-        internal void OnPreEnable()
-        {
-            m_SettingsProperty = serializedProperty.FindPropertyRelative("m_Settings");
-            m_EnabledProperty = serializedProperty.FindPropertyRelative("m_Enabled");
+        #endregion Internal Fields
 
-            OnEnable();
-        }
+        #region Protected Fields
 
-        public virtual void OnEnable()
-        {}
+        protected SerializedProperty m_EnabledProperty;
+        protected SerializedProperty m_SettingsProperty;
+
+        #endregion Protected Fields
+
+        #region Public Properties
+
+        public SerializedProperty serializedProperty { get; internal set; }
+        public PostProcessingModel target { get; internal set; }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public virtual void OnDisable()
-        {}
+        { }
+
+        public virtual void OnEnable()
+        { }
+
+        public virtual void OnInspectorGUI()
+        { }
+
+        public void Repaint()
+        {
+            inspector.Repaint();
+        }
+
+        #endregion Public Methods
+
+        #region Internal Methods
 
         internal void OnGUI()
         {
@@ -50,21 +68,17 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        void Reset()
+        internal void OnPreEnable()
         {
-            var obj = serializedProperty.serializedObject;
-            Undo.RecordObject(obj.targetObject, "Reset");
-            target.Reset();
-            EditorUtility.SetDirty(obj.targetObject);
+            m_SettingsProperty = serializedProperty.FindPropertyRelative("m_Settings");
+            m_EnabledProperty = serializedProperty.FindPropertyRelative("m_Enabled");
+
+            OnEnable();
         }
 
-        public virtual void OnInspectorGUI()
-        {}
+        #endregion Internal Methods
 
-        public void Repaint()
-        {
-            inspector.Repaint();
-        }
+        #region Protected Methods
 
         protected SerializedProperty FindSetting<T, TValue>(Expression<Func<T, TValue>> expr)
         {
@@ -75,5 +89,19 @@ namespace UnityEditor.PostProcessing
         {
             return prop.FindPropertyRelative(ReflectionUtils.GetFieldPath(expr));
         }
+
+        #endregion Protected Methods
+
+        #region Private Methods
+
+        private void Reset()
+        {
+            var obj = serializedProperty.serializedObject;
+            Undo.RecordObject(obj.targetObject, "Reset");
+            target.Reset();
+            EditorUtility.SetDirty(obj.targetObject);
+        }
+
+        #endregion Private Methods
     }
 }

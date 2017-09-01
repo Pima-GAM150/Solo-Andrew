@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEngine.PostProcessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
+using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
 {
@@ -11,26 +11,126 @@ namespace UnityEditor.PostProcessing
     [CustomEditor(typeof(PostProcessingProfile))]
     public class PostProcessingInspector : Editor
     {
-        static GUIContent s_PreviewTitle = new GUIContent("Monitors");
+        #region Private Fields
 
-        PostProcessingProfile m_ConcreteTarget
+        private static GUIContent s_PreviewTitle = new GUIContent("Monitors");
+
+        private Dictionary<PostProcessingModelEditor, PostProcessingModel> m_CustomEditors = new Dictionary<PostProcessingModelEditor, PostProcessingModel>();
+
+        private GUIContent[] m_MonitorNames;
+
+        private List<PostProcessingMonitor> m_Monitors;
+
+        #endregion Private Fields
+
+        #region Public Properties
+
+        public bool IsInteractivePreviewOpened { get; private set; }
+
+        #endregion Public Properties
+
+        #region Private Properties
+
+        private PostProcessingProfile m_ConcreteTarget
         {
             get { return target as PostProcessingProfile; }
         }
 
-        int m_CurrentMonitorID
+        private int m_CurrentMonitorID
         {
             get { return m_ConcreteTarget.monitors.currentMonitorID; }
             set { m_ConcreteTarget.monitors.currentMonitorID = value; }
         }
 
-        List<PostProcessingMonitor> m_Monitors;
-        GUIContent[] m_MonitorNames;
-        Dictionary<PostProcessingModelEditor, PostProcessingModel> m_CustomEditors = new Dictionary<PostProcessingModelEditor, PostProcessingModel>();
+        #endregion Private Properties
 
-        public bool IsInteractivePreviewOpened { get; private set; }
+        #region Public Methods
 
-        void OnEnable()
+        public override GUIContent GetPreviewTitle()
+        {
+            return s_PreviewTitle;
+        }
+
+        public override bool HasPreviewGUI()
+        {
+            return GraphicsUtils.supportsDX11 && m_Monitors.Count > 0;
+        }
+
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            // Handles undo/redo events first (before they get used by the editors' widgets)
+            var e = Event.current;
+            if (e.type == EventType.ValidateCommand && e.commandName == "UndoRedoPerformed")
+            {
+                foreach (var editor in m_CustomEditors)
+                    editor.Value.OnValidate();
+            }
+
+            if (!m_ConcreteTarget.debugViews.IsModeActive(BuiltinDebugViewsModel.Mode.None))
+                EditorGUILayout.HelpBox("A debug view is currently enabled. Changes done to an effect might not be visible.", MessageType.Info);
+
+            foreach (var editor in m_CustomEditors)
+            {
+                EditorGUI.BeginChangeCheck();
+
+                editor.Key.OnGUI();
+
+                if (EditorGUI.EndChangeCheck())
+                    editor.Value.OnValidate();
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        public override void OnInteractivePreviewGUI(Rect r, GUIStyle background)
+        {
+            IsInteractivePreviewOpened = true;
+
+            if (m_CurrentMonitorID < m_Monitors.Count)
+                m_Monitors[m_CurrentMonitorID].OnMonitorGUI(r);
+        }
+
+        public override void OnPreviewSettings()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (m_CurrentMonitorID < m_Monitors.Count)
+                    m_Monitors[m_CurrentMonitorID].OnMonitorSettings();
+
+                GUILayout.Space(5);
+                m_CurrentMonitorID = EditorGUILayout.Popup(m_CurrentMonitorID, m_MonitorNames, FxStyles.preDropdown, GUILayout.MaxWidth(100f));
+            }
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void OnDisable()
+        {
+            if (m_CustomEditors != null)
+            {
+                foreach (var editor in m_CustomEditors.Keys)
+                    editor.OnDisable();
+
+                m_CustomEditors.Clear();
+            }
+
+            if (m_Monitors != null)
+            {
+                foreach (var monitor in m_Monitors)
+                    monitor.Dispose();
+
+                m_Monitors.Clear();
+            }
+
+            if (m_ConcreteTarget != null)
+                m_ConcreteTarget.monitors.onFrameEndEditorOnly = null;
+        }
+
+        private void OnEnable()
         {
             if (target == null)
                 return;
@@ -114,29 +214,7 @@ namespace UnityEditor.PostProcessing
                 m_ConcreteTarget.monitors.onFrameEndEditorOnly = OnFrameEnd;
         }
 
-        void OnDisable()
-        {
-            if (m_CustomEditors != null)
-            {
-                foreach (var editor in m_CustomEditors.Keys)
-                    editor.OnDisable();
-
-                m_CustomEditors.Clear();
-            }
-
-            if (m_Monitors != null)
-            {
-                foreach (var monitor in m_Monitors)
-                    monitor.Dispose();
-
-                m_Monitors.Clear();
-            }
-
-            if (m_ConcreteTarget != null)
-                m_ConcreteTarget.monitors.onFrameEndEditorOnly = null;
-        }
-
-        void OnFrameEnd(RenderTexture source)
+        private void OnFrameEnd(RenderTexture source)
         {
             if (!IsInteractivePreviewOpened)
                 return;
@@ -147,62 +225,6 @@ namespace UnityEditor.PostProcessing
             IsInteractivePreviewOpened = false;
         }
 
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-
-            // Handles undo/redo events first (before they get used by the editors' widgets)
-            var e = Event.current;
-            if (e.type == EventType.ValidateCommand && e.commandName == "UndoRedoPerformed")
-            {
-                foreach (var editor in m_CustomEditors)
-                    editor.Value.OnValidate();
-            }
-
-            if (!m_ConcreteTarget.debugViews.IsModeActive(BuiltinDebugViewsModel.Mode.None))
-                EditorGUILayout.HelpBox("A debug view is currently enabled. Changes done to an effect might not be visible.", MessageType.Info);
-
-            foreach (var editor in m_CustomEditors)
-            {
-                EditorGUI.BeginChangeCheck();
-
-                editor.Key.OnGUI();
-
-                if (EditorGUI.EndChangeCheck())
-                    editor.Value.OnValidate();
-            }
-
-            serializedObject.ApplyModifiedProperties();
-        }
-
-        public override GUIContent GetPreviewTitle()
-        {
-            return s_PreviewTitle;
-        }
-
-        public override bool HasPreviewGUI()
-        {
-            return GraphicsUtils.supportsDX11 && m_Monitors.Count > 0;
-        }
-
-        public override void OnPreviewSettings()
-        {
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (m_CurrentMonitorID < m_Monitors.Count)
-                    m_Monitors[m_CurrentMonitorID].OnMonitorSettings();
-
-                GUILayout.Space(5);
-                m_CurrentMonitorID = EditorGUILayout.Popup(m_CurrentMonitorID, m_MonitorNames, FxStyles.preDropdown, GUILayout.MaxWidth(100f));
-            }
-        }
-
-        public override void OnInteractivePreviewGUI(Rect r, GUIStyle background)
-        {
-            IsInteractivePreviewOpened = true;
-
-            if (m_CurrentMonitorID < m_Monitors.Count)
-                m_Monitors[m_CurrentMonitorID].OnMonitorGUI(r);
-        }
+        #endregion Private Methods
     }
 }

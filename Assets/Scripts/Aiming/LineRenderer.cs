@@ -4,19 +4,29 @@ using UnityEngine;
 
 public class LineRenderer : MonoBehaviour
 {
-    /// <summary>
-    /// Color at the start of the line
-    /// </summary>
-    public Color StartColor;
+    #region Public Fields
 
     /// <summary>
     /// Color at the end of the line.
     /// </summary>
     public Color EndColor;
 
+    /// <summary>
+    /// Color at the start of the line
+    /// </summary>
+    public Color StartColor;
+
+    #endregion Public Fields
+
+    #region Private Fields
+
     private Material _lineMaterial;
-    private bool _shouldRender;
     private List<Vector2> _points;
+    private bool _shouldRender;
+
+    #endregion Private Fields
+
+    #region Public Methods
 
     public void SetupMaterial()
     {
@@ -48,20 +58,24 @@ public class LineRenderer : MonoBehaviour
     }
 
     /// <summary>
+    /// Stops this from drawing lines.
+    /// </summary>
+    public void StopRendering()
+    {
+        _shouldRender = false;
+    }
+
+    #endregion Public Methods
+
+    #region Private Methods
+
+    /// <summary>
     /// Used to visualize in scene view.
     /// </summary>
     private void OnDrawGizmos()
     {
         if (_shouldRender && _points.Any())
             RenderLine();
-    }
-
-    /// <summary>
-    /// Stops this from drawing lines.
-    /// </summary>
-    public void StopRendering()
-    {
-        _shouldRender = false;
     }
 
     /// <summary>
@@ -96,4 +110,6 @@ public class LineRenderer : MonoBehaviour
         GL.PopMatrix();
         GL.End();
     }
+
+    #endregion Private Methods
 }

@@ -1,4 +1,3 @@
-using UnityEngine;
 using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
@@ -8,34 +7,17 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(ScreenSpaceReflectionModel))]
     public class ScreenSpaceReflectionModelEditor : PostProcessingModelEditor
     {
-        struct IntensitySettings
-        {
-            public SerializedProperty reflectionMultiplier;
-            public SerializedProperty fadeDistance;
-            public SerializedProperty fresnelFade;
-            public SerializedProperty fresnelFadePower;
-        }
+        #region Private Fields
 
-        struct ReflectionSettings
-        {
-            public SerializedProperty blendType;
-            public SerializedProperty reflectionQuality;
-            public SerializedProperty maxDistance;
-            public SerializedProperty iterationCount;
-            public SerializedProperty stepSize;
-            public SerializedProperty widthModifier;
-            public SerializedProperty reflectionBlur;
-            public SerializedProperty reflectBackfaces;
-        }
+        private IntensitySettings m_Intensity;
 
-        struct ScreenEdgeMask
-        {
-            public SerializedProperty intensity;
-        }
+        private ReflectionSettings m_Reflection;
 
-        IntensitySettings m_Intensity;
-        ReflectionSettings m_Reflection;
-        ScreenEdgeMask m_ScreenEdgeMask;
+        private ScreenEdgeMask m_ScreenEdgeMask;
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         public override void OnEnable()
         {
@@ -96,5 +78,48 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.PropertyField(m_ScreenEdgeMask.intensity);
             EditorGUI.indentLevel--;
         }
+
+        #endregion Public Methods
+
+        #region Private Structs
+
+        private struct IntensitySettings
+        {
+            #region Public Fields
+
+            public SerializedProperty fadeDistance;
+            public SerializedProperty fresnelFade;
+            public SerializedProperty fresnelFadePower;
+            public SerializedProperty reflectionMultiplier;
+
+            #endregion Public Fields
+        }
+
+        private struct ReflectionSettings
+        {
+            #region Public Fields
+
+            public SerializedProperty blendType;
+            public SerializedProperty iterationCount;
+            public SerializedProperty maxDistance;
+            public SerializedProperty reflectBackfaces;
+            public SerializedProperty reflectionBlur;
+            public SerializedProperty reflectionQuality;
+            public SerializedProperty stepSize;
+            public SerializedProperty widthModifier;
+
+            #endregion Public Fields
+        }
+
+        private struct ScreenEdgeMask
+        {
+            #region Public Fields
+
+            public SerializedProperty intensity;
+
+            #endregion Public Fields
+        }
+
+        #endregion Private Structs
     }
 }

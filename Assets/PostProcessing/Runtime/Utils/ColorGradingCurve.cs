@@ -7,18 +7,28 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public sealed class ColorGradingCurve
     {
+        #region Public Fields
+
         public AnimationCurve curve;
 
-        [SerializeField]
-        bool m_Loop;
+        #endregion Public Fields
+
+        #region Private Fields
+
+        private AnimationCurve m_InternalLoopingCurve;
 
         [SerializeField]
-        float m_ZeroValue;
+        private bool m_Loop;
 
         [SerializeField]
-        float m_Range;
+        private float m_Range;
 
-        AnimationCurve m_InternalLoopingCurve;
+        [SerializeField]
+        private float m_ZeroValue;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public ColorGradingCurve(AnimationCurve curve, float zeroValue, bool loop, Vector2 bounds)
         {
@@ -27,6 +37,10 @@ namespace UnityEngine.PostProcessing
             m_Loop = loop;
             m_Range = bounds.magnitude;
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public void Cache()
         {
@@ -60,5 +74,7 @@ namespace UnityEngine.PostProcessing
 
             return m_InternalLoopingCurve.Evaluate(t);
         }
+
+        #endregion Public Methods
     }
 }

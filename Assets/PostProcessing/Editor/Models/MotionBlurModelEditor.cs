@@ -8,25 +8,71 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(MotionBlurModel))]
     public class MotionBlurModelEditor : PostProcessingModelEditor
     {
-        SerializedProperty m_ShutterAngle;
-        SerializedProperty m_SampleCount;
-        SerializedProperty m_FrameBlending;
+        #region Private Fields
 
-        GraphDrawer m_GraphDrawer;
+        private SerializedProperty m_FrameBlending;
+        private GraphDrawer m_GraphDrawer;
+        private SerializedProperty m_SampleCount;
+        private SerializedProperty m_ShutterAngle;
 
-        class GraphDrawer
+        #endregion Private Fields
+
+        #region Public Methods
+
+        public override void OnEnable()
         {
-            const float k_Height = 32f;
+            m_ShutterAngle = FindSetting((Settings x) => x.shutterAngle);
+            m_SampleCount = FindSetting((Settings x) => x.sampleCount);
+            m_FrameBlending = FindSetting((Settings x) => x.frameBlending);
+        }
 
-            Texture m_BlendingIcon;
+        public override void OnInspectorGUI()
+        {
+            if (m_GraphDrawer == null)
+                m_GraphDrawer = new GraphDrawer();
 
-            GUIStyle m_LowerCenterStyle;
-            GUIStyle m_MiddleCenterStyle;
+            EditorGUILayout.LabelField("Shutter Speed Simulation", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            m_GraphDrawer.DrawShutterGraph(m_ShutterAngle.floatValue);
+            EditorGUILayout.PropertyField(m_ShutterAngle);
+            EditorGUILayout.PropertyField(m_SampleCount);
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
 
-            Color m_ColorDark;
-            Color m_ColorGray;
+            EditorGUILayout.LabelField("Multiple Frame Blending", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
 
-            Vector3[] m_RectVertices = new Vector3[4];
+            float fbValue = m_FrameBlending.floatValue;
+            m_GraphDrawer.DrawBlendingGraph(fbValue);
+            EditorGUILayout.PropertyField(m_FrameBlending);
+
+            if (fbValue > 0f)
+                EditorGUILayout.HelpBox("Multi-Frame Blending lowers precision of the final picture for optimization purposes.", MessageType.Info);
+
+            EditorGUI.indentLevel--;
+        }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private class GraphDrawer
+        {
+            #region Private Fields
+
+            private const float k_Height = 32f;
+
+            private Texture m_BlendingIcon;
+
+            private Color m_ColorDark;
+            private Color m_ColorGray;
+            private GUIStyle m_LowerCenterStyle;
+            private GUIStyle m_MiddleCenterStyle;
+            private Vector3[] m_RectVertices = new Vector3[4];
+
+            #endregion Private Fields
+
+            #region Public Constructors
 
             public GraphDrawer()
             {
@@ -45,6 +91,35 @@ namespace UnityEditor.PostProcessing
                     m_ColorDark = new Color(0.64f, 0.64f, 0.64f);
                     m_ColorGray = new Color(0.92f, 0.92f, 0.92f);
                 }
+            }
+
+            #endregion Public Constructors
+
+            #region Public Methods
+
+            public void DrawBlendingGraph(float strength)
+            {
+                var center = GUILayoutUtility.GetRect(128, k_Height).center;
+
+                var iconSize = new Vector2(k_Height, k_Height);
+                var iconStride = new Vector2(k_Height * 0.9f, 0f);
+                var iconOrigin = center - iconSize * 0.5f - iconStride * 2f;
+
+                for (var i = 0; i < 5; i++)
+                {
+                    var weight = BlendingWeight(strength, i / 60f);
+                    var rect = new Rect(iconOrigin + iconStride * i, iconSize);
+
+                    var color = m_ColorGray;
+                    color.a = weight;
+
+                    GUI.color = color;
+                    GUI.Label(rect, m_BlendingIcon);
+
+                    GUI.color = Color.white;
+                    GUI.Label(rect, (weight * 100).ToString("0") + "%", m_LowerCenterStyle);
+                }
+                // EditorGUIUtility.isProSkin
             }
 
             public void DrawShutterGraph(float angle)
@@ -91,33 +166,12 @@ namespace UnityEditor.PostProcessing
                 GUI.Label(new Rect(barOrigin, outerBarSize), barText, m_MiddleCenterStyle);
             }
 
-            public void DrawBlendingGraph(float strength)
-            {
-                var center = GUILayoutUtility.GetRect(128, k_Height).center;
+            #endregion Public Methods
 
-                var iconSize = new Vector2(k_Height, k_Height);
-                var iconStride = new Vector2(k_Height * 0.9f, 0f);
-                var iconOrigin = center - iconSize * 0.5f - iconStride * 2f;
-
-                for (var i = 0; i < 5; i++)
-                {
-                    var weight = BlendingWeight(strength, i / 60f);
-                    var rect = new Rect(iconOrigin + iconStride * i, iconSize);
-
-                    var color = m_ColorGray;
-                    color.a = weight;
-
-                    GUI.color = color;
-                    GUI.Label(rect, m_BlendingIcon);
-
-                    GUI.color = Color.white;
-                    GUI.Label(rect, (weight * 100).ToString("0") + "%", m_LowerCenterStyle);
-                }
-                // EditorGUIUtility.isProSkin
-            }
+            #region Private Methods
 
             // Weight function for multi frame blending
-            float BlendingWeight(float strength, float time)
+            private float BlendingWeight(float strength, float time)
             {
                 if (strength > 0f || Mathf.Approximately(time, 0f))
                     return Mathf.Exp(-time * Mathf.Lerp(80f, 10f, strength));
@@ -125,15 +179,8 @@ namespace UnityEditor.PostProcessing
                 return 0;
             }
 
-            // Draw a solid disc in the graph rect.
-            void DrawDisc(Vector2 center, float radius, Color fill)
-            {
-                Handles.color = fill;
-                Handles.DrawSolidDisc(center, Vector3.forward, radius);
-            }
-
             // Draw an arc in the graph rect.
-            void DrawArc(Vector2 center, float radius, float angle, Color fill)
+            private void DrawArc(Vector2 center, float radius, float angle, Color fill)
             {
                 var start = new Vector2(
                         -Mathf.Cos(Mathf.Deg2Rad * angle / 2f),
@@ -144,8 +191,15 @@ namespace UnityEditor.PostProcessing
                 Handles.DrawSolidArc(center, Vector3.forward, start, angle, radius);
             }
 
+            // Draw a solid disc in the graph rect.
+            private void DrawDisc(Vector2 center, float radius, Color fill)
+            {
+                Handles.color = fill;
+                Handles.DrawSolidDisc(center, Vector3.forward, radius);
+            }
+
             // Draw a rectangle in the graph rect.
-            void DrawRect(Vector2 origin, Vector2 size, Color color)
+            private void DrawRect(Vector2 origin, Vector2 size, Color color)
             {
                 var p0 = origin;
                 var p1 = origin + size;
@@ -158,40 +212,10 @@ namespace UnityEditor.PostProcessing
                 Handles.color = Color.white;
                 Handles.DrawSolidRectangleWithOutline(m_RectVertices, color, Color.clear);
             }
+
+            #endregion Private Methods
         }
 
-        public override void OnEnable()
-        {
-            m_ShutterAngle = FindSetting((Settings x) => x.shutterAngle);
-            m_SampleCount = FindSetting((Settings x) => x.sampleCount);
-            m_FrameBlending = FindSetting((Settings x) => x.frameBlending);
-        }
-
-        public override void OnInspectorGUI()
-        {
-            if (m_GraphDrawer == null)
-                m_GraphDrawer = new GraphDrawer();
-
-            EditorGUILayout.LabelField("Shutter Speed Simulation", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            m_GraphDrawer.DrawShutterGraph(m_ShutterAngle.floatValue);
-            EditorGUILayout.PropertyField(m_ShutterAngle);
-            EditorGUILayout.PropertyField(m_SampleCount);
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField("Multiple Frame Blending", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-
-            float fbValue = m_FrameBlending.floatValue;
-            m_GraphDrawer.DrawBlendingGraph(fbValue);
-            EditorGUILayout.PropertyField(m_FrameBlending);
-
-            if (fbValue > 0f)
-                EditorGUILayout.HelpBox("Multi-Frame Blending lowers precision of the final picture for optimization purposes.", MessageType.Info);
-
-
-            EditorGUI.indentLevel--;
-        }
+        #endregion Private Classes
     }
 }

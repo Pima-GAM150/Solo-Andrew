@@ -2,13 +2,13 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class ChromaticAberrationComponent : PostProcessingComponentRenderTexture<ChromaticAberrationModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _ChromaticAberration_Amount   = Shader.PropertyToID("_ChromaticAberration_Amount");
-            internal static readonly int _ChromaticAberration_Spectrum = Shader.PropertyToID("_ChromaticAberration_Spectrum");
-        }
+        #region Private Fields
 
-        Texture2D m_SpectrumLut;
+        private Texture2D m_SpectrumLut;
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -19,6 +19,10 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public override void OnDisable()
         {
@@ -59,5 +63,21 @@ namespace UnityEngine.PostProcessing
             uberMaterial.SetFloat(Uniforms._ChromaticAberration_Amount, settings.intensity * 0.03f);
             uberMaterial.SetTexture(Uniforms._ChromaticAberration_Spectrum, spectralLut);
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _ChromaticAberration_Amount = Shader.PropertyToID("_ChromaticAberration_Amount");
+            internal static readonly int _ChromaticAberration_Spectrum = Shader.PropertyToID("_ChromaticAberration_Spectrum");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

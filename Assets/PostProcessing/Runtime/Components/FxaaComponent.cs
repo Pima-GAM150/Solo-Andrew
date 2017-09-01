@@ -2,11 +2,7 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class FxaaComponent : PostProcessingComponentRenderTexture<AntialiasingModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _QualitySettings = Shader.PropertyToID("_QualitySettings");
-            internal static readonly int _ConsoleSettings = Shader.PropertyToID("_ConsoleSettings");
-        }
+        #region Public Properties
 
         public override bool active
         {
@@ -17,6 +13,10 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
+
+        #endregion Public Properties
+
+        #region Public Methods
 
         public void Render(RenderTexture source, RenderTexture destination)
         {
@@ -44,5 +44,21 @@ namespace UnityEngine.PostProcessing
 
             Graphics.Blit(source, destination, material, 0);
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _ConsoleSettings = Shader.PropertyToID("_ConsoleSettings");
+            internal static readonly int _QualitySettings = Shader.PropertyToID("_QualitySettings");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

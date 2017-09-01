@@ -2,33 +2,34 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class EyeAdaptationComponent : PostProcessingComponentRenderTexture<EyeAdaptationModel>
     {
-        static class Uniforms
-        {
-            internal static readonly int _Params               = Shader.PropertyToID("_Params");
-            internal static readonly int _Speed                = Shader.PropertyToID("_Speed");
-            internal static readonly int _ScaleOffsetRes       = Shader.PropertyToID("_ScaleOffsetRes");
-            internal static readonly int _ExposureCompensation = Shader.PropertyToID("_ExposureCompensation");
-            internal static readonly int _AutoExposure         = Shader.PropertyToID("_AutoExposure");
-            internal static readonly int _DebugWidth           = Shader.PropertyToID("_DebugWidth");
-        }
-
-        ComputeShader m_EyeCompute;
-        ComputeBuffer m_HistogramBuffer;
-
-        readonly RenderTexture[] m_AutoExposurePool = new RenderTexture[2];
-        int m_AutoExposurePingPing;
-        RenderTexture m_CurrentAutoExposure;
-
-        RenderTexture m_DebugHistogram;
-
-        static uint[] s_EmptyHistogramBuffer;
-
-        bool m_FirstFrame = true;
+        #region Private Fields
 
         // Don't forget to update 'EyeAdaptation.cginc' if you change these values !
-        const int k_HistogramBins = 64;
-        const int k_HistogramThreadX = 16;
-        const int k_HistogramThreadY = 16;
+        private const int k_HistogramBins = 64;
+
+        private const int k_HistogramThreadX = 16;
+
+        private const int k_HistogramThreadY = 16;
+
+        private static uint[] s_EmptyHistogramBuffer;
+
+        private readonly RenderTexture[] m_AutoExposurePool = new RenderTexture[2];
+
+        private int m_AutoExposurePingPing;
+
+        private RenderTexture m_CurrentAutoExposure;
+
+        private RenderTexture m_DebugHistogram;
+
+        private ComputeShader m_EyeCompute;
+
+        private bool m_FirstFrame = true;
+
+        private ComputeBuffer m_HistogramBuffer;
+
+        #endregion Private Fields
+
+        #region Public Properties
 
         public override bool active
         {
@@ -40,15 +41,9 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        public void ResetHistory()
-        {
-            m_FirstFrame = true;
-        }
+        #endregion Public Properties
 
-        public override void OnEnable()
-        {
-            m_FirstFrame = true;
-        }
+        #region Public Methods
 
         public override void OnDisable()
         {
@@ -66,13 +61,18 @@ namespace UnityEngine.PostProcessing
             m_DebugHistogram = null;
         }
 
-        Vector4 GetHistogramScaleOffsetRes()
+        public override void OnEnable()
         {
-            var settings = model.settings;
-            float diff = settings.logMax - settings.logMin;
-            float scale = 1f / diff;
-            float offset = -settings.logMin * scale;
-            return new Vector4(scale, offset, Mathf.Floor(context.width / 2f), Mathf.Floor(context.height / 2f));
+            m_FirstFrame = true;
+        }
+
+        public void OnGUI()
+        {
+            if (m_DebugHistogram == null || !m_DebugHistogram.IsCreated())
+                return;
+
+            var rect = new Rect(context.viewport.x * Screen.width + 8f, 8f, m_DebugHistogram.width, m_DebugHistogram.height);
+            GUI.DrawTexture(rect, m_DebugHistogram);
         }
 
         public Texture Prepare(RenderTexture source, Material uberMaterial)
@@ -173,13 +173,42 @@ namespace UnityEngine.PostProcessing
             return m_CurrentAutoExposure;
         }
 
-        public void OnGUI()
+        public void ResetHistory()
         {
-            if (m_DebugHistogram == null || !m_DebugHistogram.IsCreated())
-                return;
-
-            var rect = new Rect(context.viewport.x * Screen.width + 8f, 8f, m_DebugHistogram.width, m_DebugHistogram.height);
-            GUI.DrawTexture(rect, m_DebugHistogram);
+            m_FirstFrame = true;
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private Vector4 GetHistogramScaleOffsetRes()
+        {
+            var settings = model.settings;
+            float diff = settings.logMax - settings.logMin;
+            float scale = 1f / diff;
+            float offset = -settings.logMin * scale;
+            return new Vector4(scale, offset, Mathf.Floor(context.width / 2f), Mathf.Floor(context.height / 2f));
+        }
+
+        #endregion Private Methods
+
+        #region Private Classes
+
+        private static class Uniforms
+        {
+            #region Internal Fields
+
+            internal static readonly int _AutoExposure = Shader.PropertyToID("_AutoExposure");
+            internal static readonly int _DebugWidth = Shader.PropertyToID("_DebugWidth");
+            internal static readonly int _ExposureCompensation = Shader.PropertyToID("_ExposureCompensation");
+            internal static readonly int _Params = Shader.PropertyToID("_Params");
+            internal static readonly int _ScaleOffsetRes = Shader.PropertyToID("_ScaleOffsetRes");
+            internal static readonly int _Speed = Shader.PropertyToID("_Speed");
+
+            #endregion Internal Fields
+        }
+
+        #endregion Private Classes
     }
 }

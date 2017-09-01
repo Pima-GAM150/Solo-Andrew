@@ -8,18 +8,28 @@ namespace UnityEditor.PostProcessing
 
     public class HistogramMonitor : PostProcessingMonitor
     {
-        static GUIContent s_MonitorTitle = new GUIContent("Histogram");
+        #region Private Fields
 
-        ComputeShader m_ComputeShader;
-        ComputeBuffer m_Buffer;
-        Material m_Material;
-        RenderTexture m_HistogramTexture;
-        Rect m_MonitorAreaRect;
+        private static GUIContent s_MonitorTitle = new GUIContent("Histogram");
+
+        private ComputeBuffer m_Buffer;
+        private ComputeShader m_ComputeShader;
+        private RenderTexture m_HistogramTexture;
+        private Material m_Material;
+        private Rect m_MonitorAreaRect;
+
+        #endregion Private Fields
+
+        #region Public Constructors
 
         public HistogramMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/HistogramCompute.compute");
         }
+
+        #endregion Public Constructors
+
+        #region Public Methods
 
         public override void Dispose()
         {
@@ -34,33 +44,33 @@ namespace UnityEditor.PostProcessing
             m_Buffer = null;
         }
 
-        public override bool IsSupported()
-        {
-            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
-        }
-
         public override GUIContent GetMonitorTitle()
         {
             return s_MonitorTitle;
         }
 
-        public override void OnMonitorSettings()
+        public override bool IsSupported()
         {
-            EditorGUI.BeginChangeCheck();
+            return m_ComputeShader != null && GraphicsUtils.supportsDX11;
+        }
 
-            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
-            var mode = m_MonitorSettings.histogramMode;
+        public override void OnFrameData(RenderTexture source)
+        {
+            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
+                return;
 
-            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the histogram in play mode; this may impact performances."), FxStyles.preButton);
-            mode = (HistogramMode)EditorGUILayout.EnumPopup(mode, FxStyles.preDropdown, GUILayout.MaxWidth(100f));
+            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
+                return;
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Histogram Settings Changed");
-                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
-                m_MonitorSettings.histogramMode = mode;
-                InternalEditorUtility.RepaintAllViews();
-            }
+            float ratio = (float)source.width / (float)source.height;
+            int h = 512;
+            int w = Mathf.FloorToInt(h * ratio);
+
+            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
+            Graphics.Blit(source, rt);
+            ComputeHistogram(rt);
+            m_BaseEditor.Repaint();
+            RenderTexture.ReleaseTemporary(rt);
         }
 
         public override void OnMonitorGUI(Rect r)
@@ -238,31 +248,30 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        public override void OnFrameData(RenderTexture source)
+        public override void OnMonitorSettings()
         {
-            if (Application.isPlaying && !m_MonitorSettings.refreshOnPlay)
-                return;
+            EditorGUI.BeginChangeCheck();
 
-            if (Mathf.Approximately(m_MonitorAreaRect.width, 0) || Mathf.Approximately(m_MonitorAreaRect.height, 0))
-                return;
+            bool refreshOnPlay = m_MonitorSettings.refreshOnPlay;
+            var mode = m_MonitorSettings.histogramMode;
 
-            float ratio = (float)source.width / (float)source.height;
-            int h = 512;
-            int w = Mathf.FloorToInt(h * ratio);
+            refreshOnPlay = GUILayout.Toggle(refreshOnPlay, new GUIContent(FxStyles.playIcon, "Keep refreshing the histogram in play mode; this may impact performances."), FxStyles.preButton);
+            mode = (HistogramMode)EditorGUILayout.EnumPopup(mode, FxStyles.preDropdown, GUILayout.MaxWidth(100f));
 
-            var rt = RenderTexture.GetTemporary(w, h, 0, source.format);
-            Graphics.Blit(source, rt);
-            ComputeHistogram(rt);
-            m_BaseEditor.Repaint();
-            RenderTexture.ReleaseTemporary(rt);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(m_BaseEditor.serializedObject.targetObject, "Histogram Settings Changed");
+                m_MonitorSettings.refreshOnPlay = refreshOnPlay;
+                m_MonitorSettings.histogramMode = mode;
+                InternalEditorUtility.RepaintAllViews();
+            }
         }
 
-        void CreateBuffer(int width, int height)
-        {
-            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
-        }
+        #endregion Public Methods
 
-        void ComputeHistogram(RenderTexture source)
+        #region Private Methods
+
+        private void ComputeHistogram(RenderTexture source)
         {
             if (m_Buffer == null)
             {
@@ -334,5 +343,12 @@ namespace UnityEditor.PostProcessing
 
             Graphics.Blit(null, m_HistogramTexture, m_Material, pass);
         }
+
+        private void CreateBuffer(int width, int height)
+        {
+            m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
+        }
+
+        #endregion Private Methods
     }
 }
