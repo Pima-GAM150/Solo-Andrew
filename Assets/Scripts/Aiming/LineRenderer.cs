@@ -1,30 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using EraseGame.Structs.Utility;
 
 public class LineRenderer : MonoBehaviour
 {
-    #region Public Fields
+    #region Public Enums
+
+    public enum LineStyle
+    {
+        Preview,
+        Test,
+        Invalid,
+        Valid
+    }
+
+    #endregion Public Enums
+
+    #region Public Fields + Properties
 
     /// <summary>
-    /// Color at the end of the line.
+    /// Which color pallette should be used.
     /// </summary>
-    public Color EndColor;
+    public LineStyle CurrentStyle;
 
     /// <summary>
-    /// Color at the start of the line
+    /// How thick the line should be drawn.
     /// </summary>
-    public Color StartColor;
+    public float LineThickness = 0.02f;
 
-    #endregion Public Fields
+    public ColorPair PreviewColors;
+    public ColorPair TestColors;
+    public ColorPair ValidColors;
+    public ColorPair InvalidColors;
 
-    #region Private Fields
+    #endregion Public Fields + Properties
+
+    #region Private Fields + Properties
 
     private Material _lineMaterial;
+
     private List<Vector2> _points;
+
     private bool _shouldRender;
 
-    #endregion Private Fields
+    #endregion Private Fields + Properties
 
     #region Public Methods
 
@@ -100,20 +121,39 @@ public class LineRenderer : MonoBehaviour
         GL.LoadOrtho();
         _lineMaterial.SetPass(0);
         GL.Begin(GL.QUADS);
-
+        var colorPair = GetCurrentStyle();
         // sets the vertex colors based on its distance from being the end point.
         for (int i = 0; i < _points.Count; i++)
         {
-            // fixed point at 3 (4 points).
+            // fixed point at 3 (4 points) so our line doesn't suddenly swap colors as it bounces.
             var percent = i / 3;
 
-            var color = Color.Lerp(StartColor, EndColor, percent);
+            var color = Color.Lerp(colorPair.PrimaryColor, colorPair.SecondaryColor, percent);
             GL.Color(color);
-            GL.Vertex(_points[i] - (Vector2.right * 0.05f));
-            GL.Vertex(_points[i] + (Vector2.right * 0.05f));
+            GL.Vertex(_points[i] + (Vector2.left * LineThickness));
+            GL.Vertex(_points[i] + (Vector2.right * LineThickness));
         }
         GL.PopMatrix();
         GL.End();
+    }
+
+    private ColorPair GetCurrentStyle()
+    {
+        switch (CurrentStyle)
+        {
+            case LineStyle.Preview:
+                return PreviewColors;
+
+            default:
+            case LineStyle.Test:
+                return TestColors;
+
+            case LineStyle.Invalid:
+                return InvalidColors;
+
+            case LineStyle.Valid:
+                return ValidColors;
+        }
     }
 
     #endregion Private Methods

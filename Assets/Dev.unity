@@ -348,8 +348,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29861888582498c4a8a9c9af90840bf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EndColor: {r: 0, g: 0, b: 0, a: 1}
-  StartColor: {r: 0.78676474, g: 0.78676474, b: 0.78676474, a: 1}
+  CurrentStyle: 0
+  LineThickness: 0.03
+  PreviewColors:
+    PrimaryColor: {r: 0.7941176, g: 0.7941176, b: 0.7941176, a: 1}
+    SecondaryColor: {r: 0, g: 0, b: 0, a: 1}
+  TestColors:
+    PrimaryColor: {r: 0, g: 1, b: 0.048275948, a: 1}
+    SecondaryColor: {r: 1, g: 0, b: 0, a: 1}
+  ValidColors:
+    PrimaryColor: {r: 0.5514706, g: 1, b: 0.59168357, a: 1}
+    SecondaryColor: {r: 0.17941171, g: 0.89705884, b: 0, a: 1}
+  InvalidColors:
+    PrimaryColor: {r: 0.875, g: 0.5211397, b: 0.5211397, a: 1}
+    SecondaryColor: {r: 0.44117647, g: 0, b: 0, a: 1}
 --- !u!61 &1064214733
 BoxCollider2D:
   m_ObjectHideFlags: 0
