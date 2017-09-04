@@ -69,6 +69,9 @@ public class LineRenderer : MonoBehaviour
 
     #region Private Methods
 
+    // Redirect Awake to setup material.
+    private void Awake() => SetupMaterial();
+
     /// <summary>
     /// Used to visualize in scene view.
     /// </summary>
@@ -95,17 +98,19 @@ public class LineRenderer : MonoBehaviour
         // idk the purpose of any of this but its required
         GL.PushMatrix();
         GL.LoadOrtho();
-        SetupMaterial();
         _lineMaterial.SetPass(0);
-        GL.Begin(GL.LINES);
+        GL.Begin(GL.QUADS);
 
         // sets the vertex colors based on its distance from being the end point.
         for (int i = 0; i < _points.Count; i++)
         {
-            var percent = i / (_points.Count - 1);
+            // fixed point at 3 (4 points).
+            var percent = i / 3;
+
             var color = Color.Lerp(StartColor, EndColor, percent);
             GL.Color(color);
-            GL.Vertex(_points[i]);
+            GL.Vertex(_points[i] - (Vector2.right * 0.05f));
+            GL.Vertex(_points[i] + (Vector2.right * 0.05f));
         }
         GL.PopMatrix();
         GL.End();
