@@ -7,8 +7,6 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(AmbientOcclusionModel))]
     public class AmbientOcclusionModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_AmbientOnly;
         private SerializedProperty m_Downsampling;
         private SerializedProperty m_ForceForwardCompatibility;
@@ -16,10 +14,6 @@ namespace UnityEditor.PostProcessing
         private SerializedProperty m_Intensity;
         private SerializedProperty m_Radius;
         private SerializedProperty m_SampleCount;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -44,7 +38,5 @@ namespace UnityEditor.PostProcessing
             using (new EditorGUI.DisabledGroupScope(m_ForceForwardCompatibility.boolValue))
                 EditorGUILayout.PropertyField(m_AmbientOnly, EditorGUIHelper.GetContent("Ambient Only (Deferred + HDR)"));
         }
-
-        #endregion Public Methods
     }
 }

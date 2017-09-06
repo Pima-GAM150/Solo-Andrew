@@ -9,22 +9,12 @@ namespace UnityEditor.PostProcessing
 {
     public static class EditorGUIHelper
     {
-        #region Private Fields
-
         private static Dictionary<string, GUIContent> s_GUIContentCache;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         static EditorGUIHelper()
         {
             s_GUIContentCache = new Dictionary<string, GUIContent>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public static GUIContent GetContent(string textAndTooltip)
         {
@@ -163,10 +153,6 @@ namespace UnityEditor.PostProcessing
             return display;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private static bool CanPaste(SerializedProperty settings)
         {
             var data = EditorGUIUtility.systemCopyBuffer;
@@ -200,7 +186,5 @@ namespace UnityEditor.PostProcessing
             var parent = ReflectionUtils.GetParentObject(settings.propertyPath, settings.serializedObject.targetObject);
             field.SetValue(parent, obj, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, CultureInfo.CurrentCulture);
         }
-
-        #endregion Private Methods
     }
 }

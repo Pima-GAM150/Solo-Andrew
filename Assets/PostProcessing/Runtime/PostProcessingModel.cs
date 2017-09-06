@@ -5,15 +5,6 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public abstract class PostProcessingModel
     {
-        #region Private Fields
-
-        [SerializeField, GetSet("enabled")]
-        private bool m_Enabled;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public bool enabled
         {
             get
@@ -29,15 +20,12 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        [SerializeField, GetSet("enabled")]
+        private bool m_Enabled;
 
         public virtual void OnValidate()
         { }
 
         public abstract void Reset();
-
-        #endregion Public Methods
     }
 }

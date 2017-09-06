@@ -6,8 +6,6 @@ namespace UnityEngine.PostProcessing
     {
 #pragma warning disable 0169 // "field x is never used"
 
-        #region Public Fields
-
         public AmbientOcclusionModel ambientOcclusion = new AmbientOcclusionModel();
         public AntialiasingModel antialiasing = new AntialiasingModel();
         public BloomModel bloom = new BloomModel();
@@ -25,17 +23,22 @@ namespace UnityEngine.PostProcessing
         public UserLutModel userLut = new UserLutModel();
         public VignetteModel vignette = new VignetteModel();
 
-        #endregion Public Fields
-
 #if UNITY_EDITOR
-
-        #region Public Classes
 
         // Monitor settings
         [Serializable]
         public class MonitorSettings
         {
-            #region Public Fields
+            // Histogram
+            public enum HistogramMode
+            {
+                Red = 0,
+                Green = 1,
+                Blue = 2,
+                Luminance = 3,
+                RGBMerged,
+                RGBSplit
+            }
 
             // Global
             public int currentMonitorID = 0;
@@ -65,26 +68,7 @@ namespace UnityEngine.PostProcessing
             public bool waveformR = true;
 
             public bool waveformY = false;
-
-            #endregion Public Fields
-
-            #region Public Enums
-
-            // Histogram
-            public enum HistogramMode
-            {
-                Red = 0,
-                Green = 1,
-                Blue = 2,
-                Luminance = 3,
-                RGBMerged,
-                RGBSplit
-            }
-
-            #endregion Public Enums
         }
-
-        #endregion Public Classes
 
 #endif
     }

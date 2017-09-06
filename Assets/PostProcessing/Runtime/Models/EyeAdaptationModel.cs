@@ -5,52 +5,32 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public class EyeAdaptationModel : PostProcessingModel
     {
-        #region Private Fields
-
-        [SerializeField]
-        private Settings m_Settings = Settings.defaultSettings;
-
-        #endregion Private Fields
-
-        #region Public Enums
-
-        public enum EyeAdaptationType
-        {
-            #region Public Fields
-
-            Progressive,
-            Fixed
-
-            #endregion Public Fields
-        }
-
-        #endregion Public Enums
-
-        #region Public Properties
-
-        public Settings settings
-        {
-            get { return m_Settings; }
-            set { m_Settings = value; }
-        }
-
-        #endregion Public Properties
-
-        #region Public Methods
-
-        public override void Reset()
-        {
-            m_Settings = Settings.defaultSettings;
-        }
-
-        #endregion Public Methods
-
-        #region Public Structs
-
         [Serializable]
         public struct Settings
         {
-            #region Public Fields
+            public static Settings defaultSettings
+            {
+                get
+                {
+                    return new Settings
+                    {
+                        lowPercent = 45f,
+                        highPercent = 95f,
+
+                        minLuminance = -5f,
+                        maxLuminance = 1f,
+                        keyValue = 0.25f,
+                        dynamicKeyValue = true,
+
+                        adaptationType = EyeAdaptationType.Progressive,
+                        speedUp = 2f,
+                        speedDown = 1f,
+
+                        logMin = -8,
+                        logMax = 4
+                    };
+                }
+            }
 
             [Tooltip("Use \"Progressive\" if you want the auto exposure to be animated. Use \"Fixed\" otherwise.")]
             public EyeAdaptationType adaptationType;
@@ -84,38 +64,26 @@ namespace UnityEngine.PostProcessing
 
             [Min(0f), Tooltip("Adaptation speed from a dark to a light environment.")]
             public float speedUp;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static Settings defaultSettings
-            {
-                get
-                {
-                    return new Settings
-                    {
-                        lowPercent = 45f,
-                        highPercent = 95f,
-
-                        minLuminance = -5f,
-                        maxLuminance = 1f,
-                        keyValue = 0.25f,
-                        dynamicKeyValue = true,
-
-                        adaptationType = EyeAdaptationType.Progressive,
-                        speedUp = 2f,
-                        speedDown = 1f,
-
-                        logMin = -8,
-                        logMax = 4
-                    };
-                }
-            }
-
-            #endregion Public Properties
         }
 
-        #endregion Public Structs
+        public enum EyeAdaptationType
+        {
+            Progressive,
+            Fixed
+        }
+
+        public Settings settings
+        {
+            get { return m_Settings; }
+            set { m_Settings = value; }
+        }
+
+        [SerializeField]
+        private Settings m_Settings = Settings.defaultSettings;
+
+        public override void Reset()
+        {
+            m_Settings = Settings.defaultSettings;
+        }
     }
 }

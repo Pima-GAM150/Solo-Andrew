@@ -14,16 +14,10 @@ namespace UnityEngine.PostProcessing
     [AddComponentMenu("Effects/Post-Processing Behaviour", -1)]
     public class PostProcessingBehaviour : MonoBehaviour
     {
-        #region Public Fields
-
         public Func<Vector2, Matrix4x4> jitteredMatrixFunc;
 
         // Inspector fields
         public PostProcessingProfile profile;
-
-        #endregion Public Fields
-
-        #region Private Fields
 
         private AmbientOcclusionComponent m_AmbientOcclusion;
 
@@ -64,20 +58,12 @@ namespace UnityEngine.PostProcessing
         private UserLutComponent m_UserLut;
         private VignetteComponent m_Vignette;
 
-        #endregion Private Fields
-
-        #region Public Methods
-
         public void ResetTemporalEffects()
         {
             m_Taa.ResetHistory();
             m_MotionBlur.ResetHistory();
             m_EyeAdaptation.ResetHistory();
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         // Placeholders before the upcoming Scriptable Render Loop as command buffers will be
         // executed on the go so we won't need of all that stuff
@@ -479,7 +465,5 @@ namespace UnityEngine.PostProcessing
             component.Prepare(material);
             return true;
         }
-
-        #endregion Private Methods
     }
 }

@@ -5,55 +5,9 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public class ScreenSpaceReflectionModel : PostProcessingModel
     {
-        #region Private Fields
-
-        [SerializeField]
-        private Settings m_Settings = Settings.defaultSettings;
-
-        #endregion Private Fields
-
-        #region Public Enums
-
-        public enum SSRReflectionBlendType
-        {
-            PhysicallyBased,
-            Additive
-        }
-
-        public enum SSRResolution
-        {
-            High = 0,
-            Low = 2
-        }
-
-        #endregion Public Enums
-
-        #region Public Properties
-
-        public Settings settings
-        {
-            get { return m_Settings; }
-            set { m_Settings = value; }
-        }
-
-        #endregion Public Properties
-
-        #region Public Methods
-
-        public override void Reset()
-        {
-            m_Settings = Settings.defaultSettings;
-        }
-
-        #endregion Public Methods
-
-        #region Public Structs
-
         [Serializable]
         public struct IntensitySettings
         {
-            #region Public Fields
-
             [Tooltip("How far away from the maxDistance to begin fading SSR.")]
             [Range(0.0f, 1000.0f)]
             public float fadeDistance;
@@ -69,15 +23,11 @@ namespace UnityEngine.PostProcessing
             [Tooltip("Nonphysical multiplier for the SSR reflections. 1.0 is physically based.")]
             [Range(0.0f, 2.0f)]
             public float reflectionMultiplier;
-
-            #endregion Public Fields
         }
 
         [Serializable]
         public struct ReflectionSettings
         {
-            #region Public Fields
-
             // When enabled, we just add our reflections on top of the existing ones. This is physically incorrect, but several
             // popular demos and games have taken this approach, and it does hide some artifacts.
             [Tooltip("How the reflections are blended into the render.")]
@@ -109,35 +59,19 @@ namespace UnityEngine.PostProcessing
             [Tooltip("Typical thickness of columns, walls, furniture, and other objects that reflection rays might pass behind.")]
             [Range(0.01f, 10.0f)]
             public float widthModifier;
-
-            #endregion Public Fields
         }
 
         [Serializable]
         public struct ScreenEdgeMask
         {
-            #region Public Fields
-
             [Tooltip("Higher = fade out SSRR near the edge of the screen so that reflections don't pop under camera motion.")]
             [Range(0.0f, 1.0f)]
             public float intensity;
-
-            #endregion Public Fields
         }
 
         [Serializable]
         public struct Settings
         {
-            #region Public Fields
-
-            public IntensitySettings intensity;
-            public ReflectionSettings reflection;
-            public ScreenEdgeMask screenEdgeMask;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
             public static Settings defaultSettings
             {
                 get
@@ -173,9 +107,35 @@ namespace UnityEngine.PostProcessing
                 }
             }
 
-            #endregion Public Properties
+            public IntensitySettings intensity;
+            public ReflectionSettings reflection;
+            public ScreenEdgeMask screenEdgeMask;
         }
 
-        #endregion Public Structs
+        public enum SSRReflectionBlendType
+        {
+            PhysicallyBased,
+            Additive
+        }
+
+        public enum SSRResolution
+        {
+            High = 0,
+            Low = 2
+        }
+
+        public Settings settings
+        {
+            get { return m_Settings; }
+            set { m_Settings = value; }
+        }
+
+        [SerializeField]
+        private Settings m_Settings = Settings.defaultSettings;
+
+        public override void Reset()
+        {
+            m_Settings = Settings.defaultSettings;
+        }
     }
 }

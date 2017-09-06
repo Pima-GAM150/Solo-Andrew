@@ -2,18 +2,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class BloomComponent : PostProcessingComponentRenderTexture<BloomModel>
     {
-        #region Private Fields
-
-        private const int k_MaxPyramidBlurLevel = 16;
-
-        private readonly RenderTexture[] m_BlurBuffer1 = new RenderTexture[k_MaxPyramidBlurLevel];
-
-        private readonly RenderTexture[] m_BlurBuffer2 = new RenderTexture[k_MaxPyramidBlurLevel];
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -24,9 +12,11 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private const int k_MaxPyramidBlurLevel = 16;
 
-        #region Public Methods
+        private readonly RenderTexture[] m_BlurBuffer1 = new RenderTexture[k_MaxPyramidBlurLevel];
+
+        private readonly RenderTexture[] m_BlurBuffer2 = new RenderTexture[k_MaxPyramidBlurLevel];
 
         public void Prepare(RenderTexture source, Material uberMaterial, Texture autoExposure)
         {
@@ -138,14 +128,8 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _AutoExposure = Shader.PropertyToID("_AutoExposure");
 
             internal static readonly int _BaseTex = Shader.PropertyToID("_BaseTex");
@@ -157,10 +141,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _PrefilterOffs = Shader.PropertyToID("_PrefilterOffs");
             internal static readonly int _SampleScale = Shader.PropertyToID("_SampleScale");
             internal static readonly int _Threshold = Shader.PropertyToID("_Threshold");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

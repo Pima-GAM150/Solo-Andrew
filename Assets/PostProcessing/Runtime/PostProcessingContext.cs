@@ -2,17 +2,6 @@ namespace UnityEngine.PostProcessing
 {
     public class PostProcessingContext
     {
-        #region Public Fields
-
-        public Camera camera;
-        public MaterialFactory materialFactory;
-        public PostProcessingProfile profile;
-        public RenderTextureFactory renderTextureFactory;
-
-        #endregion Public Fields
-
-        #region Public Properties
-
         public int height
         {
             get { return camera.pixelHeight; }
@@ -45,9 +34,10 @@ namespace UnityEngine.PostProcessing
             get { return camera.pixelWidth; }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        public Camera camera;
+        public MaterialFactory materialFactory;
+        public PostProcessingProfile profile;
+        public RenderTextureFactory renderTextureFactory;
 
         public void Interrupt()
         {
@@ -63,7 +53,5 @@ namespace UnityEngine.PostProcessing
             interrupted = false;
             return this;
         }
-
-        #endregion Public Methods
     }
 }

@@ -4,8 +4,6 @@ using UnityEngine.EventSystems;
 
 public class BreakableBlock : MonoBehaviour, IPointerClickHandler
 {
-    #region Public Events
-
     /// <summary>
     /// Called when the block is tapped on to deal damage.
     /// </summary>
@@ -15,10 +13,6 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
     /// Called when this block is being destroyed.
     /// </summary>
     public event BlockEvent OnDied;
-
-    #endregion Public Events
-
-    #region Public Fields
 
     /// <summary>
     /// Determines if this block can be damaged or not.
@@ -42,16 +36,8 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
     [HideInInspector]
     public float MaxHealth;
 
-    #endregion Public Fields
-
-    #region Private Fields
-
     private SpriteRenderer _spRenderer;
     private Color _targetColor;
-
-    #endregion Private Fields
-
-    #region Public Methods
 
     /// <summary>
     /// Sets the color of this block.
@@ -105,10 +91,6 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
         Damage(ClickDamage);
     }
 
-    #endregion Public Methods
-
-    #region Private Methods
-
     private void Awake()
     {
         MaxHealth = Health;
@@ -125,6 +107,4 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
             _spRenderer.color = Color.Lerp(_spRenderer.color, _targetColor, Time.deltaTime * 10f);
         }
     }
-
-    #endregion Private Methods
 }

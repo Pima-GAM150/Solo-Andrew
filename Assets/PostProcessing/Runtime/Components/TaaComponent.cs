@@ -4,24 +4,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class TaaComponent : PostProcessingComponentRenderTexture<AntialiasingModel>
     {
-        #region Private Fields
-
-        private const int k_SampleCount = 8;
-
-        private const string k_ShaderString = "Hidden/Post FX/Temporal Anti-aliasing";
-
-        private readonly RenderBuffer[] m_MRT = new RenderBuffer[2];
-
-        private RenderTexture m_HistoryTexture;
-
-        private bool m_ResetHistory = true;
-
-        private int m_SampleIndex = 0;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -35,10 +17,17 @@ namespace UnityEngine.PostProcessing
         }
 
         public Vector2 jitterVector { get; private set; }
+        private const int k_SampleCount = 8;
 
-        #endregion Public Properties
+        private const string k_ShaderString = "Hidden/Post FX/Temporal Anti-aliasing";
 
-        #region Public Methods
+        private readonly RenderBuffer[] m_MRT = new RenderBuffer[2];
+
+        private RenderTexture m_HistoryTexture;
+
+        private bool m_ResetHistory = true;
+
+        private int m_SampleIndex = 0;
 
         public override DepthTextureMode GetCameraFlags()
         {
@@ -132,10 +121,6 @@ namespace UnityEngine.PostProcessing
             jitterVector = jitter;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private Vector2 GenerateRandomOffset()
         {
             var offset = new Vector2(
@@ -220,23 +205,13 @@ namespace UnityEngine.PostProcessing
             return matrix;
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static int _FinalBlendParameters = Shader.PropertyToID("_FinalBlendParameters");
             internal static int _HistoryTex = Shader.PropertyToID("_HistoryTex");
             internal static int _Jitter = Shader.PropertyToID("_Jitter");
             internal static int _MainTex = Shader.PropertyToID("_MainTex");
             internal static int _SharpenParameters = Shader.PropertyToID("_SharpenParameters");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

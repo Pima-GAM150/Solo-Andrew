@@ -7,23 +7,6 @@ namespace UnityEngine.PostProcessing
 
     public sealed class ScreenSpaceReflectionComponent : PostProcessingComponentCommandBuffer<ScreenSpaceReflectionModel>
     {
-        #region Private Fields
-
-        private readonly int[] m_ReflectionTextures = new int[5];
-
-        private bool k_BilateralUpsample = true;
-
-        // Unexposed variables
-        private bool k_HighlightSuppression = false;
-
-        private bool k_TraceBehindObjects = true;
-
-        private bool k_TreatBackfaceHitAsMiss = false;
-
-        #endregion Private Fields
-
-        #region Private Enums
-
         private enum PassIndex
         {
             RayTraceStep = 0,
@@ -37,10 +20,6 @@ namespace UnityEngine.PostProcessing
             PoissonBlur = 8,
         }
 
-        #endregion Private Enums
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -51,9 +30,16 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private readonly int[] m_ReflectionTextures = new int[5];
 
-        #region Public Methods
+        private bool k_BilateralUpsample = true;
+
+        // Unexposed variables
+        private bool k_HighlightSuppression = false;
+
+        private bool k_TraceBehindObjects = true;
+
+        private bool k_TreatBackfaceHitAsMiss = false;
 
         public override CameraEvent GetCameraEvent()
         {
@@ -214,14 +200,8 @@ namespace UnityEngine.PostProcessing
             cb.ReleaseTemporaryRT(kTempTexture);
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _AdditiveReflection = Shader.PropertyToID("_AdditiveReflection");
             internal static readonly int _AllowBackwardsRays = Shader.PropertyToID("_AllowBackwardsRays");
             internal static readonly int _Axis = Shader.PropertyToID("_Axis");
@@ -257,10 +237,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _TraceBehindObjects = Shader.PropertyToID("_TraceBehindObjects");
             internal static readonly int _TreatBackfaceHitAsMiss = Shader.PropertyToID("_TreatBackfaceHitAsMiss");
             internal static readonly int _WorldToCameraMatrix = Shader.PropertyToID("_WorldToCameraMatrix");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

@@ -8,12 +8,8 @@ namespace EraseGame.Structs
         [Serializable]
         public struct ColorPair
         {
-            #region Public Fields
-
             public Color PrimaryColor;
             public Color SecondaryColor;
-
-            #endregion Public Fields
         }
     }
 }

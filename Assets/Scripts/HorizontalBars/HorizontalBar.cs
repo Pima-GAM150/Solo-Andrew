@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class HorizontalBar : MonoBehaviour
 {
-    #region Public Events
-
     /// <summary>
     /// calls whenever a block is finally destroyed.
     /// </summary>
@@ -16,27 +14,6 @@ public class HorizontalBar : MonoBehaviour
     /// called when the color is changing for non-broken blocks.
     /// </summary>
     public event ColorEvent OnUpdateColor;
-
-    #endregion Public Events
-
-    #region Public Fields
-
-    /// <summary>
-    /// List of the children blocks.
-    /// </summary>
-    public List<BreakableBlock> Blocks;
-
-    #endregion Public Fields
-
-    #region Private Fields
-
-    private bool _canDamage;
-
-    private float _lastHealthPercent = 1f;
-
-    #endregion Private Fields
-
-    #region Public Properties
 
     /// <summary>
     /// If the player is able to tap to deal damage to this bar or not.
@@ -54,9 +31,14 @@ public class HorizontalBar : MonoBehaviour
         }
     }
 
-    #endregion Public Properties
+    /// <summary>
+    /// List of the children blocks.
+    /// </summary>
+    public List<BreakableBlock> Blocks;
 
-    #region Public Methods
+    private bool _canDamage;
+
+    private float _lastHealthPercent = 1f;
 
     public void Awake()
     {
@@ -84,10 +66,6 @@ public class HorizontalBar : MonoBehaviour
         CanDamage = false;
         return returnTransform;
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     /// <summary>
     /// Called when a block takes damage.
@@ -137,6 +115,4 @@ public class HorizontalBar : MonoBehaviour
         //broadcast the new color to all the blocks.
         OnUpdateColor?.Invoke(Color.Lerp(Color.black, Color.white, healthPercent));
     }
-
-    #endregion Private Methods
 }

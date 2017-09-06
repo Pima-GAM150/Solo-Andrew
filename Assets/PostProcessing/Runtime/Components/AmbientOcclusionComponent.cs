@@ -6,32 +6,12 @@ namespace UnityEngine.PostProcessing
 
     public sealed class AmbientOcclusionComponent : PostProcessingComponentCommandBuffer<AmbientOcclusionModel>
     {
-        #region Private Fields
-
-        private const string k_BlitShaderString = "Hidden/Post FX/Blit";
-
-        private const string k_ShaderString = "Hidden/Post FX/Ambient Occlusion";
-
-        private readonly RenderTargetIdentifier[] m_MRT =
-        {
-            BuiltinRenderTextureType.GBuffer0, // Albedo, Occ
-            BuiltinRenderTextureType.CameraTarget // Ambient
-        };
-
-        #endregion Private Fields
-
-        #region Private Enums
-
         private enum OcclusionSource
         {
             DepthTexture,
             DepthNormalsTexture,
             GBuffer
         }
-
-        #endregion Private Enums
-
-        #region Public Properties
 
         public override bool active
         {
@@ -42,10 +22,6 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
-
-        #endregion Public Properties
-
-        #region Private Properties
 
         private bool ambientOnlySupported
         {
@@ -66,9 +42,15 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Private Properties
+        private const string k_BlitShaderString = "Hidden/Post FX/Blit";
 
-        #region Public Methods
+        private const string k_ShaderString = "Hidden/Post FX/Ambient Occlusion";
+
+        private readonly RenderTargetIdentifier[] m_MRT =
+        {
+            BuiltinRenderTextureType.GBuffer0, // Albedo, Occ
+            BuiltinRenderTextureType.CameraTarget // Ambient
+        };
 
         public override CameraEvent GetCameraEvent()
         {
@@ -189,14 +171,8 @@ namespace UnityEngine.PostProcessing
             cb.ReleaseTemporaryRT(rtMask);
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _Downsample = Shader.PropertyToID("_Downsample");
             internal static readonly int _FogParams = Shader.PropertyToID("_FogParams");
             internal static readonly int _Intensity = Shader.PropertyToID("_Intensity");
@@ -207,10 +183,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _Radius = Shader.PropertyToID("_Radius");
             internal static readonly int _SampleCount = Shader.PropertyToID("_SampleCount");
             internal static readonly int _TempRT = Shader.PropertyToID("_TempRT");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

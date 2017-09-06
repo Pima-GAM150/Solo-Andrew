@@ -5,22 +5,12 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class RenderTextureFactory : IDisposable
     {
-        #region Private Fields
-
         private HashSet<RenderTexture> m_TemporaryRTs;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public RenderTextureFactory()
         {
             m_TemporaryRTs = new HashSet<RenderTexture>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Dispose()
         {
@@ -70,7 +60,5 @@ namespace UnityEngine.PostProcessing
 
             m_TemporaryRTs.Clear();
         }
-
-        #endregion Public Methods
     }
 }

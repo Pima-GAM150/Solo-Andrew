@@ -7,29 +7,14 @@ namespace UnityEditor.PostProcessing
 {
     public class PostProcessingModelEditor
     {
-        #region Internal Fields
-
+        public SerializedProperty serializedProperty { get; internal set; }
+        public PostProcessingModel target { get; internal set; }
         internal bool alwaysEnabled = false;
         internal PostProcessingInspector inspector;
         internal PostProcessingProfile profile;
 
-        #endregion Internal Fields
-
-        #region Protected Fields
-
         protected SerializedProperty m_EnabledProperty;
         protected SerializedProperty m_SettingsProperty;
-
-        #endregion Protected Fields
-
-        #region Public Properties
-
-        public SerializedProperty serializedProperty { get; internal set; }
-        public PostProcessingModel target { get; internal set; }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public virtual void OnDisable()
         { }
@@ -44,10 +29,6 @@ namespace UnityEditor.PostProcessing
         {
             inspector.Repaint();
         }
-
-        #endregion Public Methods
-
-        #region Internal Methods
 
         internal void OnGUI()
         {
@@ -76,10 +57,6 @@ namespace UnityEditor.PostProcessing
             OnEnable();
         }
 
-        #endregion Internal Methods
-
-        #region Protected Methods
-
         protected SerializedProperty FindSetting<T, TValue>(Expression<Func<T, TValue>> expr)
         {
             return m_SettingsProperty.FindPropertyRelative(ReflectionUtils.GetFieldPath(expr));
@@ -90,10 +67,6 @@ namespace UnityEditor.PostProcessing
             return prop.FindPropertyRelative(ReflectionUtils.GetFieldPath(expr));
         }
 
-        #endregion Protected Methods
-
-        #region Private Methods
-
         private void Reset()
         {
             var obj = serializedProperty.serializedObject;
@@ -101,7 +74,5 @@ namespace UnityEditor.PostProcessing
             target.Reset();
             EditorUtility.SetDirty(obj.targetObject);
         }
-
-        #endregion Private Methods
     }
 }

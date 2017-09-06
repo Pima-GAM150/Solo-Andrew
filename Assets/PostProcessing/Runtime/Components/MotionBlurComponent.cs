@@ -6,18 +6,6 @@ namespace UnityEngine.PostProcessing
 
     public sealed class MotionBlurComponent : PostProcessingComponentCommandBuffer<MotionBlurModel>
     {
-        #region Private Fields
-
-        private bool m_FirstFrame = true;
-
-        private FrameBlendingFilter m_FrameBlendingFilter;
-
-        private ReconstructionFilter m_ReconstructionFilter;
-
-        #endregion Private Fields
-
-        #region Private Enums
-
         private enum Pass
         {
             VelocitySetup,
@@ -30,10 +18,6 @@ namespace UnityEngine.PostProcessing
             FrameBlendingChroma,
             FrameBlendingRaw
         }
-
-        #endregion Private Enums
-
-        #region Public Properties
 
         public override bool active
         {
@@ -69,9 +53,11 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private bool m_FirstFrame = true;
 
-        #region Public Methods
+        private FrameBlendingFilter m_FrameBlendingFilter;
+
+        private ReconstructionFilter m_ReconstructionFilter;
 
         public override CameraEvent GetCameraEvent()
         {
@@ -162,145 +148,15 @@ namespace UnityEngine.PostProcessing
             m_FrameBlendingFilter = null;
         }
 
-        #endregion Public Methods
-
-        #region Public Classes
-
         public class FrameBlendingFilter
         {
-            #region Private Fields
-
-            private Frame[] m_FrameList;
-
-            private int m_LastFrameCount;
-
-            private RenderTextureFormat m_RawTextureFormat;
-
-            private bool m_UseCompression;
-
-            #endregion Private Fields
-
-            #region Public Constructors
-
-            public FrameBlendingFilter()
-            {
-                m_UseCompression = CheckSupportCompression();
-                m_RawTextureFormat = GetPreferredRenderTextureFormat();
-                m_FrameList = new Frame[4];
-            }
-
-            #endregion Public Constructors
-
-            #region Public Methods
-
-            public void BlendFrames(CommandBuffer cb, float strength, RenderTargetIdentifier source, RenderTargetIdentifier destination, Material material)
-            {
-                var t = Time.time;
-
-                var f1 = GetFrameRelative(-1);
-                var f2 = GetFrameRelative(-2);
-                var f3 = GetFrameRelative(-3);
-                var f4 = GetFrameRelative(-4);
-
-                cb.SetGlobalTexture(Uniforms._History1LumaTex, f1.lumaTexture);
-                cb.SetGlobalTexture(Uniforms._History2LumaTex, f2.lumaTexture);
-                cb.SetGlobalTexture(Uniforms._History3LumaTex, f3.lumaTexture);
-                cb.SetGlobalTexture(Uniforms._History4LumaTex, f4.lumaTexture);
-
-                cb.SetGlobalTexture(Uniforms._History1ChromaTex, f1.chromaTexture);
-                cb.SetGlobalTexture(Uniforms._History2ChromaTex, f2.chromaTexture);
-                cb.SetGlobalTexture(Uniforms._History3ChromaTex, f3.chromaTexture);
-                cb.SetGlobalTexture(Uniforms._History4ChromaTex, f4.chromaTexture);
-
-                cb.SetGlobalFloat(Uniforms._History1Weight, f1.CalculateWeight(strength, t));
-                cb.SetGlobalFloat(Uniforms._History2Weight, f2.CalculateWeight(strength, t));
-                cb.SetGlobalFloat(Uniforms._History3Weight, f3.CalculateWeight(strength, t));
-                cb.SetGlobalFloat(Uniforms._History4Weight, f4.CalculateWeight(strength, t));
-
-                cb.SetGlobalTexture(Uniforms._MainTex, source);
-                cb.Blit(source, destination, material, m_UseCompression ? (int)Pass.FrameBlendingChroma : (int)Pass.FrameBlendingRaw);
-            }
-
-            public void Dispose()
-            {
-                foreach (var frame in m_FrameList)
-                    frame.Release();
-            }
-
-            public void PushFrame(CommandBuffer cb, RenderTargetIdentifier source, int width, int height, Material material)
-            {
-                // Push only when actual update (do nothing while pausing)
-                var frameCount = Time.frameCount;
-                if (frameCount == m_LastFrameCount) return;
-
-                // Update the frame record.
-                var index = frameCount % m_FrameList.Length;
-
-                if (m_UseCompression)
-                    m_FrameList[index].MakeRecord(cb, source, width, height, material);
-                else
-                    m_FrameList[index].MakeRecordRaw(cb, source, width, height, m_RawTextureFormat);
-
-                m_LastFrameCount = frameCount;
-            }
-
-            #endregion Public Methods
-
-            #region Private Methods
-
-            // Check if the platform has the capability of compression.
-            private static bool CheckSupportCompression()
-            {
-                return
-                    SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.R8) &&
-                    SystemInfo.supportedRenderTargetCount > 1;
-            }
-
-            // Determine which 16-bit render texture format is available.
-            private static RenderTextureFormat GetPreferredRenderTextureFormat()
-            {
-                RenderTextureFormat[] formats =
-                {
-                    RenderTextureFormat.RGB565,
-                    RenderTextureFormat.ARGB1555,
-                    RenderTextureFormat.ARGB4444
-                };
-
-                foreach (var f in formats)
-                    if (SystemInfo.SupportsRenderTextureFormat(f)) return f;
-
-                return RenderTextureFormat.Default;
-            }
-
-            // Retrieve a frame record with relative indexing.
-            // Use a negative index to refer to previous frames.
-            private Frame GetFrameRelative(int offset)
-            {
-                var index = (Time.frameCount + m_FrameList.Length + offset) % m_FrameList.Length;
-                return m_FrameList[index];
-            }
-
-            #endregion Private Methods
-
-            #region Private Structs
-
             private struct Frame
             {
-                #region Public Fields
-
                 public RenderTexture chromaTexture;
                 public RenderTexture lumaTexture;
 
-                #endregion Public Fields
-
-                #region Private Fields
-
                 private RenderTargetIdentifier[] m_MRT;
                 private float m_Time;
-
-                #endregion Private Fields
-
-                #region Public Methods
 
                 public float CalculateWeight(float strength, float currentTime)
                 {
@@ -358,35 +214,119 @@ namespace UnityEngine.PostProcessing
                     lumaTexture = null;
                     chromaTexture = null;
                 }
-
-                #endregion Public Methods
             }
 
-            #endregion Private Structs
+            private Frame[] m_FrameList;
+
+            private int m_LastFrameCount;
+
+            private RenderTextureFormat m_RawTextureFormat;
+
+            private bool m_UseCompression;
+
+            public FrameBlendingFilter()
+            {
+                m_UseCompression = CheckSupportCompression();
+                m_RawTextureFormat = GetPreferredRenderTextureFormat();
+                m_FrameList = new Frame[4];
+            }
+
+            public void BlendFrames(CommandBuffer cb, float strength, RenderTargetIdentifier source, RenderTargetIdentifier destination, Material material)
+            {
+                var t = Time.time;
+
+                var f1 = GetFrameRelative(-1);
+                var f2 = GetFrameRelative(-2);
+                var f3 = GetFrameRelative(-3);
+                var f4 = GetFrameRelative(-4);
+
+                cb.SetGlobalTexture(Uniforms._History1LumaTex, f1.lumaTexture);
+                cb.SetGlobalTexture(Uniforms._History2LumaTex, f2.lumaTexture);
+                cb.SetGlobalTexture(Uniforms._History3LumaTex, f3.lumaTexture);
+                cb.SetGlobalTexture(Uniforms._History4LumaTex, f4.lumaTexture);
+
+                cb.SetGlobalTexture(Uniforms._History1ChromaTex, f1.chromaTexture);
+                cb.SetGlobalTexture(Uniforms._History2ChromaTex, f2.chromaTexture);
+                cb.SetGlobalTexture(Uniforms._History3ChromaTex, f3.chromaTexture);
+                cb.SetGlobalTexture(Uniforms._History4ChromaTex, f4.chromaTexture);
+
+                cb.SetGlobalFloat(Uniforms._History1Weight, f1.CalculateWeight(strength, t));
+                cb.SetGlobalFloat(Uniforms._History2Weight, f2.CalculateWeight(strength, t));
+                cb.SetGlobalFloat(Uniforms._History3Weight, f3.CalculateWeight(strength, t));
+                cb.SetGlobalFloat(Uniforms._History4Weight, f4.CalculateWeight(strength, t));
+
+                cb.SetGlobalTexture(Uniforms._MainTex, source);
+                cb.Blit(source, destination, material, m_UseCompression ? (int)Pass.FrameBlendingChroma : (int)Pass.FrameBlendingRaw);
+            }
+
+            public void Dispose()
+            {
+                foreach (var frame in m_FrameList)
+                    frame.Release();
+            }
+
+            public void PushFrame(CommandBuffer cb, RenderTargetIdentifier source, int width, int height, Material material)
+            {
+                // Push only when actual update (do nothing while pausing)
+                var frameCount = Time.frameCount;
+                if (frameCount == m_LastFrameCount) return;
+
+                // Update the frame record.
+                var index = frameCount % m_FrameList.Length;
+
+                if (m_UseCompression)
+                    m_FrameList[index].MakeRecord(cb, source, width, height, material);
+                else
+                    m_FrameList[index].MakeRecordRaw(cb, source, width, height, m_RawTextureFormat);
+
+                m_LastFrameCount = frameCount;
+            }
+
+            // Check if the platform has the capability of compression.
+            private static bool CheckSupportCompression()
+            {
+                return
+                    SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.R8) &&
+                    SystemInfo.supportedRenderTargetCount > 1;
+            }
+
+            // Determine which 16-bit render texture format is available.
+            private static RenderTextureFormat GetPreferredRenderTextureFormat()
+            {
+                RenderTextureFormat[] formats =
+                {
+                    RenderTextureFormat.RGB565,
+                    RenderTextureFormat.ARGB1555,
+                    RenderTextureFormat.ARGB4444
+                };
+
+                foreach (var f in formats)
+                    if (SystemInfo.SupportsRenderTextureFormat(f)) return f;
+
+                return RenderTextureFormat.Default;
+            }
+
+            // Retrieve a frame record with relative indexing.
+            // Use a negative index to refer to previous frames.
+            private Frame GetFrameRelative(int offset)
+            {
+                var index = (Time.frameCount + m_FrameList.Length + offset) % m_FrameList.Length;
+                return m_FrameList[index];
+            }
         }
 
         public class ReconstructionFilter
         {
-            #region Private Fields
-
             // Texture format for storing packed velocity/depth.
             private RenderTextureFormat m_PackedRTFormat = RenderTextureFormat.ARGB2101010;
 
             // Texture format for storing 2D vectors.
             private RenderTextureFormat m_VectorRTFormat = RenderTextureFormat.RGHalf;
 
-            #endregion Private Fields
-
-            #region Public Constructors
-
             public ReconstructionFilter()
             {
                 CheckTextureFormatSupport();
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public bool IsSupported()
             {
@@ -464,28 +404,16 @@ namespace UnityEngine.PostProcessing
                 cb.ReleaseTemporaryRT(neighborMax);
             }
 
-            #endregion Public Methods
-
-            #region Private Methods
-
             private void CheckTextureFormatSupport()
             {
                 // If 2:10:10:10 isn't supported, use ARGB32 instead.
                 if (!SystemInfo.SupportsRenderTextureFormat(m_PackedRTFormat))
                     m_PackedRTFormat = RenderTextureFormat.ARGB32;
             }
-
-            #endregion Private Methods
         }
-
-        #endregion Public Classes
-
-        #region Private Classes
 
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _History1ChromaTex = Shader.PropertyToID("_History1ChromaTex");
             internal static readonly int _History1LumaTex = Shader.PropertyToID("_History1LumaTex");
             internal static readonly int _History1Weight = Shader.PropertyToID("_History1Weight");
@@ -512,10 +440,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _TileVRT = Shader.PropertyToID("_TileVRT");
             internal static readonly int _VelocityScale = Shader.PropertyToID("_VelocityScale");
             internal static readonly int _VelocityTex = Shader.PropertyToID("_VelocityTex");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

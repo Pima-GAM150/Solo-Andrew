@@ -6,8 +6,6 @@ namespace UnityEditor.PostProcessing
 {
     public class VectorscopeMonitor : PostProcessingMonitor
     {
-        #region Private Fields
-
         private static GUIContent s_MonitorTitle = new GUIContent("Vectorscope");
 
         private ComputeBuffer m_Buffer;
@@ -16,18 +14,10 @@ namespace UnityEditor.PostProcessing
         private Rect m_MonitorAreaRect;
         private RenderTexture m_VectorscopeTexture;
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public VectorscopeMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/VectorscopeCompute.compute");
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public override void Dispose()
         {
@@ -199,10 +189,6 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void ComputeVectorscope(RenderTexture source)
         {
             if (m_Buffer == null)
@@ -251,7 +237,5 @@ namespace UnityEditor.PostProcessing
         {
             m_Buffer = new ComputeBuffer(width * height, sizeof(uint));
         }
-
-        #endregion Private Methods
     }
 }

@@ -4,7 +4,14 @@ namespace UnityEngine.PostProcessing
 
     public sealed class ColorGradingComponent : PostProcessingComponentRenderTexture<ColorGradingModel>
     {
-        #region Private Fields
+        public override bool active
+        {
+            get
+            {
+                return model.enabled
+                       && !context.interrupted;
+            }
+        }
 
         private const int k_CurvePrecision = 128;
 
@@ -15,23 +22,6 @@ namespace UnityEngine.PostProcessing
         private Texture2D m_GradingCurves;
 
         private Color[] m_pixels = new Color[k_CurvePrecision * 2];
-
-        #endregion Private Fields
-
-        #region Public Properties
-
-        public override bool active
-        {
-            get
-            {
-                return model.enabled
-                       && !context.interrupted;
-            }
-        }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public static void CalculateLiftGammaGain(Color lift, Color gamma, Color gain, out Vector3 outLift, out Vector3 outGamma, out Vector3 outGain)
         {
@@ -183,10 +173,6 @@ namespace UnityEngine.PostProcessing
             float ev = Mathf.Exp(model.settings.basic.postExposure * 0.69314718055994530941723212145818f);
             uberMaterial.SetFloat(Uniforms._ExposureEV, ev);
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private static Vector3 ClampVector(Vector3 v, float min, float max)
         {
@@ -426,14 +412,8 @@ namespace UnityEngine.PostProcessing
             return 2.87f * x - 3f * x * x - 0.27509507f;
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _Balance = Shader.PropertyToID("_Balance");
             internal static readonly int _ChannelMixerBlue = Shader.PropertyToID("_ChannelMixerBlue");
             internal static readonly int _ChannelMixerGreen = Shader.PropertyToID("_ChannelMixerGreen");
@@ -454,10 +434,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _Power = Shader.PropertyToID("_Power");
             internal static readonly int _Saturation = Shader.PropertyToID("_Saturation");
             internal static readonly int _Slope = Shader.PropertyToID("_Slope");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

@@ -5,14 +5,84 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public class BuiltinDebugViewsModel : PostProcessingModel
     {
-        #region Private Fields
+        [Serializable]
+        public struct DepthSettings
+        {
+            public static DepthSettings defaultSettings
+            {
+                get
+                {
+                    return new DepthSettings
+                    {
+                        scale = 1f
+                    };
+                }
+            }
 
-        [SerializeField]
-        private Settings m_Settings = Settings.defaultSettings;
+            [Range(0f, 1f), Tooltip("Scales the camera far plane before displaying the depth map.")]
+            public float scale;
+        }
 
-        #endregion Private Fields
+        [Serializable]
+        public struct MotionVectorsSettings
+        {
+            public static MotionVectorsSettings defaultSettings
+            {
+                get
+                {
+                    return new MotionVectorsSettings
+                    {
+                        sourceOpacity = 1f,
 
-        #region Public Enums
+                        motionImageOpacity = 0f,
+                        motionImageAmplitude = 16f,
+
+                        motionVectorsOpacity = 1f,
+                        motionVectorsResolution = 24,
+                        motionVectorsAmplitude = 64f
+                    };
+                }
+            }
+
+            [Min(0f), Tooltip("Because motion vectors are mainly very small vectors, you can use this setting to make them more visible.")]
+            public float motionImageAmplitude;
+
+            [Range(0f, 1f), Tooltip("Opacity of the per-pixel motion vector colors.")]
+            public float motionImageOpacity;
+
+            [Min(0f), Tooltip("Tweaks the arrows length.")]
+            public float motionVectorsAmplitude;
+
+            [Range(0f, 1f), Tooltip("Opacity for the motion vector arrows.")]
+            public float motionVectorsOpacity;
+
+            [Range(8, 64), Tooltip("The arrow density on screen.")]
+            public int motionVectorsResolution;
+
+            [Range(0f, 1f), Tooltip("Opacity of the source render.")]
+            public float sourceOpacity;
+        }
+
+        [Serializable]
+        public struct Settings
+        {
+            public static Settings defaultSettings
+            {
+                get
+                {
+                    return new Settings
+                    {
+                        mode = Mode.None,
+                        depth = DepthSettings.defaultSettings,
+                        motionVectors = MotionVectorsSettings.defaultSettings
+                    };
+                }
+            }
+
+            public DepthSettings depth;
+            public Mode mode;
+            public MotionVectorsSettings motionVectors;
+        }
 
         public enum Mode
         {
@@ -29,10 +99,6 @@ namespace UnityEngine.PostProcessing
             LogLut,
             UserLut
         }
-
-        #endregion Public Enums
-
-        #region Public Properties
 
         public Settings settings
         {
@@ -52,9 +118,8 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        [SerializeField]
+        private Settings m_Settings = Settings.defaultSettings;
 
         public bool IsModeActive(Mode mode)
         {
@@ -65,114 +130,5 @@ namespace UnityEngine.PostProcessing
         {
             settings = Settings.defaultSettings;
         }
-
-        #endregion Public Methods
-
-        #region Public Structs
-
-        [Serializable]
-        public struct DepthSettings
-        {
-            #region Public Fields
-
-            [Range(0f, 1f), Tooltip("Scales the camera far plane before displaying the depth map.")]
-            public float scale;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static DepthSettings defaultSettings
-            {
-                get
-                {
-                    return new DepthSettings
-                    {
-                        scale = 1f
-                    };
-                }
-            }
-
-            #endregion Public Properties
-        }
-
-        [Serializable]
-        public struct MotionVectorsSettings
-        {
-            #region Public Fields
-
-            [Min(0f), Tooltip("Because motion vectors are mainly very small vectors, you can use this setting to make them more visible.")]
-            public float motionImageAmplitude;
-
-            [Range(0f, 1f), Tooltip("Opacity of the per-pixel motion vector colors.")]
-            public float motionImageOpacity;
-
-            [Min(0f), Tooltip("Tweaks the arrows length.")]
-            public float motionVectorsAmplitude;
-
-            [Range(0f, 1f), Tooltip("Opacity for the motion vector arrows.")]
-            public float motionVectorsOpacity;
-
-            [Range(8, 64), Tooltip("The arrow density on screen.")]
-            public int motionVectorsResolution;
-
-            [Range(0f, 1f), Tooltip("Opacity of the source render.")]
-            public float sourceOpacity;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static MotionVectorsSettings defaultSettings
-            {
-                get
-                {
-                    return new MotionVectorsSettings
-                    {
-                        sourceOpacity = 1f,
-
-                        motionImageOpacity = 0f,
-                        motionImageAmplitude = 16f,
-
-                        motionVectorsOpacity = 1f,
-                        motionVectorsResolution = 24,
-                        motionVectorsAmplitude = 64f
-                    };
-                }
-            }
-
-            #endregion Public Properties
-        }
-
-        [Serializable]
-        public struct Settings
-        {
-            #region Public Fields
-
-            public DepthSettings depth;
-            public Mode mode;
-            public MotionVectorsSettings motionVectors;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static Settings defaultSettings
-            {
-                get
-                {
-                    return new Settings
-                    {
-                        mode = Mode.None,
-                        depth = DepthSettings.defaultSettings,
-                        motionVectors = MotionVectorsSettings.defaultSettings
-                    };
-                }
-            }
-
-            #endregion Public Properties
-        }
-
-        #endregion Public Structs
     }
 }

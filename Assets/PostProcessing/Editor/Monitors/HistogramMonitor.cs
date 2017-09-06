@@ -8,8 +8,6 @@ namespace UnityEditor.PostProcessing
 
     public class HistogramMonitor : PostProcessingMonitor
     {
-        #region Private Fields
-
         private static GUIContent s_MonitorTitle = new GUIContent("Histogram");
 
         private ComputeBuffer m_Buffer;
@@ -18,18 +16,10 @@ namespace UnityEditor.PostProcessing
         private Material m_Material;
         private Rect m_MonitorAreaRect;
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public HistogramMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/HistogramCompute.compute");
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public override void Dispose()
         {
@@ -267,10 +257,6 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void ComputeHistogram(RenderTexture source)
         {
             if (m_Buffer == null)
@@ -348,7 +334,5 @@ namespace UnityEditor.PostProcessing
         {
             m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
         }
-
-        #endregion Private Methods
     }
 }

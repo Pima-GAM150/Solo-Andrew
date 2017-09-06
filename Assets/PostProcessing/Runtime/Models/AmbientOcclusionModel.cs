@@ -5,56 +5,25 @@ namespace UnityEngine.PostProcessing
     [Serializable]
     public class AmbientOcclusionModel : PostProcessingModel
     {
-        #region Private Fields
-
-        [SerializeField]
-        private Settings m_Settings = Settings.defaultSettings;
-
-        #endregion Private Fields
-
-        #region Public Enums
-
-        public enum SampleCount
-        {
-            #region Public Fields
-
-            Lowest = 3,
-            Low = 6
-
-            #endregion Public Fields
-
-,
-            Medium = 10,
-            High = 16
-        }
-
-        #endregion Public Enums
-
-        #region Public Properties
-
-        public Settings settings
-        {
-            get { return m_Settings; }
-            set { m_Settings = value; }
-        }
-
-        #endregion Public Properties
-
-        #region Public Methods
-
-        public override void Reset()
-        {
-            m_Settings = Settings.defaultSettings;
-        }
-
-        #endregion Public Methods
-
-        #region Public Structs
-
         [Serializable]
         public struct Settings
         {
-            #region Public Fields
+            public static Settings defaultSettings
+            {
+                get
+                {
+                    return new Settings
+                    {
+                        intensity = 1f,
+                        radius = 0.3f,
+                        sampleCount = SampleCount.Medium,
+                        downsampling = true,
+                        forceForwardCompatibility = false,
+                        ambientOnly = false,
+                        highPrecision = false
+                    };
+                }
+            }
 
             [Tooltip("Enables the ambient-only mode in that the effect only affects ambient lighting. This mode is only available with the Deferred rendering path and HDR rendering.")]
             public bool ambientOnly;
@@ -76,31 +45,30 @@ namespace UnityEngine.PostProcessing
 
             [Tooltip("Number of sample points, which affects quality and performance.")]
             public SampleCount sampleCount;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static Settings defaultSettings
-            {
-                get
-                {
-                    return new Settings
-                    {
-                        intensity = 1f,
-                        radius = 0.3f,
-                        sampleCount = SampleCount.Medium,
-                        downsampling = true,
-                        forceForwardCompatibility = false,
-                        ambientOnly = false,
-                        highPrecision = false
-                    };
-                }
-            }
-
-            #endregion Public Properties
         }
 
-        #endregion Public Structs
+        public enum SampleCount
+        {
+            Lowest = 3,
+            Low = 6
+
+,
+            Medium = 10,
+            High = 16
+        }
+
+        public Settings settings
+        {
+            get { return m_Settings; }
+            set { m_Settings = value; }
+        }
+
+        [SerializeField]
+        private Settings m_Settings = Settings.defaultSettings;
+
+        public override void Reset()
+        {
+            m_Settings = Settings.defaultSettings;
+        }
     }
 }

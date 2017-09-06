@@ -6,8 +6,6 @@ namespace UnityEditor.PostProcessing
     [CustomPropertyDrawer(typeof(GetSetAttribute))]
     internal sealed class GetSetDrawer : PropertyDrawer
     {
-        #region Public Methods
-
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var attribute = (GetSetAttribute)base.attribute;
@@ -34,7 +32,5 @@ namespace UnityEditor.PostProcessing
                 attribute.dirty = false;
             }
         }
-
-        #endregion Public Methods
     }
 }

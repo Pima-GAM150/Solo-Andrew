@@ -1,13 +1,10 @@
-﻿using System;
+﻿using EraseGame.Structs.Utility;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using EraseGame.Structs.Utility;
 
 public class LineRenderer : MonoBehaviour
 {
-    #region Public Enums
-
     public enum LineStyle
     {
         Preview,
@@ -15,10 +12,6 @@ public class LineRenderer : MonoBehaviour
         Invalid,
         Valid
     }
-
-    #endregion Public Enums
-
-    #region Public Fields + Properties
 
     /// <summary>
     /// Which color pallette should be used.
@@ -35,19 +28,11 @@ public class LineRenderer : MonoBehaviour
     public ColorPair ValidColors;
     public ColorPair InvalidColors;
 
-    #endregion Public Fields + Properties
-
-    #region Private Fields + Properties
-
     private Material _lineMaterial;
 
     private List<Vector2> _points;
 
     private bool _shouldRender;
-
-    #endregion Private Fields + Properties
-
-    #region Public Methods
 
     public void SetupMaterial()
     {
@@ -85,10 +70,6 @@ public class LineRenderer : MonoBehaviour
     {
         _shouldRender = false;
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     // Redirect Awake to setup material.
     private void Awake() => SetupMaterial();
@@ -155,6 +136,4 @@ public class LineRenderer : MonoBehaviour
                 return ValidColors;
         }
     }
-
-    #endregion Private Methods
 }

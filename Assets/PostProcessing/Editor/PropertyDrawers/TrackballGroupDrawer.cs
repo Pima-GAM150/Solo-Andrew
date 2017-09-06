@@ -8,22 +8,6 @@ namespace UnityEditor.PostProcessing
     [CustomPropertyDrawer(typeof(TrackballGroupAttribute))]
     internal sealed class TrackballGroupDrawer : PropertyDrawer
     {
-        #region Private Fields
-
-        private const int k_MaxWheelSize = 256;
-        private const int k_MinWheelSize = 80;
-        private static readonly int k_ThumbHash = "colorWheelThumb".GetHashCode();
-
-        // Cached trackball computation methods (for speed reasons)
-        private static Dictionary<string, MethodInfo> m_TrackballMethods = new Dictionary<string, MethodInfo>();
-
-        private static Material s_Material;
-        private bool m_ResetState;
-
-        #endregion Private Fields
-
-        #region Internal Properties
-
         internal static int m_Size
         {
             get
@@ -34,9 +18,15 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Internal Properties
+        private const int k_MaxWheelSize = 256;
+        private const int k_MinWheelSize = 80;
+        private static readonly int k_ThumbHash = "colorWheelThumb".GetHashCode();
 
-        #region Public Methods
+        // Cached trackball computation methods (for speed reasons)
+        private static Dictionary<string, MethodInfo> m_TrackballMethods = new Dictionary<string, MethodInfo>();
+
+        private static Material s_Material;
+        private bool m_ResetState;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
@@ -63,10 +53,6 @@ namespace UnityEditor.PostProcessing
                 position.x += position.width;
             }
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private Vector3 GetInput(Rect bounds, Vector3 hsv, float radius)
         {
@@ -252,7 +238,5 @@ namespace UnityEditor.PostProcessing
             output = (Vector3)method.Invoke(property.serializedObject.targetObject, new object[] { color });
             return true;
         }
-
-        #endregion Private Methods
     }
 }

@@ -8,13 +8,7 @@ namespace UnityEditor.PostProcessing
 {
     public static class ReflectionUtils
     {
-        #region Private Fields
-
         private static Dictionary<KeyValuePair<object, string>, FieldInfo> s_FieldInfoFromPaths = new Dictionary<KeyValuePair<object, string>, FieldInfo>();
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public static FieldInfo GetFieldInfoFromPath(object source, string path)
         {
@@ -127,7 +121,5 @@ namespace UnityEditor.PostProcessing
 
             return GetParentObject(string.Join(".", fields, 1, fields.Length - 1), obj);
         }
-
-        #endregion Public Methods
     }
 }

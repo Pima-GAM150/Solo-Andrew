@@ -5,22 +5,12 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class MaterialFactory : IDisposable
     {
-        #region Private Fields
-
         private Dictionary<string, Material> m_Materials;
-
-        #endregion Private Fields
-
-        #region Public Constructors
 
         public MaterialFactory()
         {
             m_Materials = new Dictionary<string, Material>();
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public void Dispose()
         {
@@ -56,7 +46,5 @@ namespace UnityEngine.PostProcessing
 
             return material;
         }
-
-        #endregion Public Methods
     }
 }

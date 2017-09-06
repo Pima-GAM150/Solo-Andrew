@@ -8,7 +8,20 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(BloomModel))]
     public class BloomModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
+        private struct BloomSettings
+        {
+            public SerializedProperty antiFlicker;
+            public SerializedProperty intensity;
+            public SerializedProperty radius;
+            public SerializedProperty softKnee;
+            public SerializedProperty threshold;
+        }
+
+        private struct LensDirtSettings
+        {
+            public SerializedProperty intensity;
+            public SerializedProperty texture;
+        }
 
         // Number of vertices in curve
         private const int k_CurveResolution = 48;
@@ -35,10 +48,6 @@ namespace UnityEditor.PostProcessing
 
         // Vertex buffers
         private Vector3[] m_RectVertices = new Vector3[4];
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         // Draw the graph at the current position
         public void DrawGraph()
@@ -156,10 +165,6 @@ namespace UnityEditor.PostProcessing
             m_GraphIntensity = Mathf.Min(bloom.settings.bloom.intensity, 10f);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         // Draw a line in the graph rect
         private void DrawLine(float x1, float y1, float x2, float y2, float grayscale)
         {
@@ -198,34 +203,5 @@ namespace UnityEditor.PostProcessing
             rq = rq * rq * 0.25f / m_GraphKnee;
             return Mathf.Max(rq, x - m_GraphThreshold) * m_GraphIntensity;
         }
-
-        #endregion Private Methods
-
-        #region Private Structs
-
-        private struct BloomSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty antiFlicker;
-            public SerializedProperty intensity;
-            public SerializedProperty radius;
-            public SerializedProperty softKnee;
-            public SerializedProperty threshold;
-
-            #endregion Public Fields
-        }
-
-        private struct LensDirtSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty intensity;
-            public SerializedProperty texture;
-
-            #endregion Public Fields
-        }
-
-        #endregion Private Structs
     }
 }

@@ -4,8 +4,6 @@ namespace EraseGame
 {
     public static class Extensions
     {
-        #region Public Methods
-
         /// <summary>
         /// Gets the direction from this vector to b
         /// </summary>
@@ -17,7 +15,5 @@ namespace EraseGame
             var heading = b - a;
             return heading / heading.magnitude;
         }
-
-        #endregion Public Methods
     }
 }

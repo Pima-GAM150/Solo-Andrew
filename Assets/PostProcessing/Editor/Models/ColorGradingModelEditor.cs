@@ -12,7 +12,56 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(ColorGradingModel))]
     public class ColorGradingModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
+        private struct BasicSettings
+        {
+            public SerializedProperty contrast;
+            public SerializedProperty exposure;
+            public SerializedProperty hueShift;
+            public SerializedProperty saturation;
+            public SerializedProperty temperature;
+            public SerializedProperty tint;
+        }
+
+        private struct ChannelMixerSettings
+        {
+            public SerializedProperty[] channels;
+            public SerializedProperty currentEditingChannel;
+        }
+
+        private struct ColorWheelsSettings
+        {
+            public SerializedProperty linear;
+            public SerializedProperty log;
+            public SerializedProperty mode;
+        }
+
+        private struct CurvesSettings
+        {
+            public SerializedProperty blue;
+            public SerializedProperty currentEditingCurve;
+            public SerializedProperty curveB;
+            public SerializedProperty curveG;
+            public SerializedProperty curveR;
+            public SerializedProperty curveY;
+            public SerializedProperty green;
+            public SerializedProperty hueVShue;
+            public SerializedProperty hueVSsat;
+            public SerializedProperty lumVSsat;
+            public SerializedProperty master;
+            public SerializedProperty red;
+            public SerializedProperty satVSsat;
+        }
+
+        private struct TonemappingSettings
+        {
+            public SerializedProperty neutralBlackIn;
+            public SerializedProperty neutralBlackOut;
+            public SerializedProperty neutralWhiteClip;
+            public SerializedProperty neutralWhiteIn;
+            public SerializedProperty neutralWhiteLevel;
+            public SerializedProperty neutralWhiteOut;
+            public SerializedProperty tonemapper;
+        }
 
         // Neutral tonemapping curve helper
         private const int k_CurveResolution = 24;
@@ -60,10 +109,6 @@ namespace UnityEditor.PostProcessing
         private Vector3[] m_RectVertices = new Vector3[4];
 
         private TonemappingSettings m_Tonemapping;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnDisable()
         {
@@ -163,10 +208,6 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.Space();
             DoGUIFor("Grading Curves", DoCurvesGUI);
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private static void WheelSetTitle(Rect position, string label)
         {
@@ -650,82 +691,5 @@ namespace UnityEditor.PostProcessing
 
             return GUI.Toggle(rect, value, name, EditorStyles.toolbarButton);
         }
-
-        #endregion Private Methods
-
-        #region Private Structs
-
-        private struct BasicSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty contrast;
-            public SerializedProperty exposure;
-            public SerializedProperty hueShift;
-            public SerializedProperty saturation;
-            public SerializedProperty temperature;
-            public SerializedProperty tint;
-
-            #endregion Public Fields
-        }
-
-        private struct ChannelMixerSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty[] channels;
-            public SerializedProperty currentEditingChannel;
-
-            #endregion Public Fields
-        }
-
-        private struct ColorWheelsSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty linear;
-            public SerializedProperty log;
-            public SerializedProperty mode;
-
-            #endregion Public Fields
-        }
-
-        private struct CurvesSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty blue;
-            public SerializedProperty currentEditingCurve;
-            public SerializedProperty curveB;
-            public SerializedProperty curveG;
-            public SerializedProperty curveR;
-            public SerializedProperty curveY;
-            public SerializedProperty green;
-            public SerializedProperty hueVShue;
-            public SerializedProperty hueVSsat;
-            public SerializedProperty lumVSsat;
-            public SerializedProperty master;
-            public SerializedProperty red;
-            public SerializedProperty satVSsat;
-
-            #endregion Public Fields
-        }
-
-        private struct TonemappingSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty neutralBlackIn;
-            public SerializedProperty neutralBlackOut;
-            public SerializedProperty neutralWhiteClip;
-            public SerializedProperty neutralWhiteIn;
-            public SerializedProperty neutralWhiteLevel;
-            public SerializedProperty neutralWhiteOut;
-            public SerializedProperty tonemapper;
-
-            #endregion Public Fields
-        }
-
-        #endregion Private Structs
     }
 }

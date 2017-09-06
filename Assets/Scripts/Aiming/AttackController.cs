@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour
 {
-    #region Public Events
-
     /// <summary>
     /// Called when an aim angle has been decided.
     /// </summary>
@@ -28,9 +26,31 @@ public class AttackController : MonoBehaviour
     /// </summary>
     public event EmptyEvent OnFireSuccess;
 
-    #endregion Public Events
-
-    #region Public Fields
+    /// <summary>
+    /// If we should be rendering our aim line or not.
+    /// </summary>
+    public bool ShouldDrawAim
+    {
+        get
+        {
+            return _shouldDrawAim;
+        }
+        set
+        {
+            if (_shouldDrawAim != value)
+            {
+                if (value)
+                {
+                    _shouldDrawAim = value;
+                    StartCoroutine(DrawAim());
+                }
+                else
+                {
+                    _shouldDrawAim = value;
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Maximum angle to aim in for both positive and negative values.
@@ -67,47 +87,9 @@ public class AttackController : MonoBehaviour
     /// </summary>
     public float NextAimLocationX;
 
-    #endregion Public Fields
-
-    #region Private Fields
-
     private LineRenderer _lineRenderer;
     private ProceduralWorldScroller _procWorldScroller;
     private bool _shouldDrawAim;
-
-    #endregion Private Fields
-
-    #region Public Properties
-
-    /// <summary>
-    /// If we should be rendering our aim line or not.
-    /// </summary>
-    public bool ShouldDrawAim
-    {
-        get
-        {
-            return _shouldDrawAim;
-        }
-        set
-        {
-            if (_shouldDrawAim != value)
-            {
-                if (value)
-                {
-                    _shouldDrawAim = value;
-                    StartCoroutine(DrawAim());
-                }
-                else
-                {
-                    _shouldDrawAim = value;
-                }
-            }
-        }
-    }
-
-    #endregion Public Properties
-
-    #region Public Methods
 
     /// <summary>
     /// Starts the animing sequence and ends in firing.
@@ -130,10 +112,6 @@ public class AttackController : MonoBehaviour
         }
         OnAimComplete?.Invoke();
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     private void Awake()
     {
@@ -217,6 +195,4 @@ public class AttackController : MonoBehaviour
         OnFireFailed?.Invoke();
         OnFireSuccess?.Invoke();
     }
-
-    #endregion Private Methods
 }

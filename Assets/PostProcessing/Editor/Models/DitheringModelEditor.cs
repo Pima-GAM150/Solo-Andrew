@@ -5,8 +5,6 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(DitheringModel))]
     public class DitheringModelEditor : PostProcessingModelEditor
     {
-        #region Public Methods
-
         public override void OnInspectorGUI()
         {
             if (profile.grain.enabled && target.enabled)
@@ -14,7 +12,5 @@ namespace UnityEditor.PostProcessing
             else
                 EditorGUILayout.HelpBox("Nothing to configure !", MessageType.Info);
         }
-
-        #endregion Public Methods
     }
 }

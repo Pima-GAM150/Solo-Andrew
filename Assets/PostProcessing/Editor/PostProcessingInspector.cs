@@ -11,25 +11,7 @@ namespace UnityEditor.PostProcessing
     [CustomEditor(typeof(PostProcessingProfile))]
     public class PostProcessingInspector : Editor
     {
-        #region Private Fields
-
-        private static GUIContent s_PreviewTitle = new GUIContent("Monitors");
-
-        private Dictionary<PostProcessingModelEditor, PostProcessingModel> m_CustomEditors = new Dictionary<PostProcessingModelEditor, PostProcessingModel>();
-
-        private GUIContent[] m_MonitorNames;
-
-        private List<PostProcessingMonitor> m_Monitors;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public bool IsInteractivePreviewOpened { get; private set; }
-
-        #endregion Public Properties
-
-        #region Private Properties
 
         private PostProcessingProfile m_ConcreteTarget
         {
@@ -42,9 +24,13 @@ namespace UnityEditor.PostProcessing
             set { m_ConcreteTarget.monitors.currentMonitorID = value; }
         }
 
-        #endregion Private Properties
+        private static GUIContent s_PreviewTitle = new GUIContent("Monitors");
 
-        #region Public Methods
+        private Dictionary<PostProcessingModelEditor, PostProcessingModel> m_CustomEditors = new Dictionary<PostProcessingModelEditor, PostProcessingModel>();
+
+        private GUIContent[] m_MonitorNames;
+
+        private List<PostProcessingMonitor> m_Monitors;
 
         public override GUIContent GetPreviewTitle()
         {
@@ -103,10 +89,6 @@ namespace UnityEditor.PostProcessing
                 m_CurrentMonitorID = EditorGUILayout.Popup(m_CurrentMonitorID, m_MonitorNames, FxStyles.preDropdown, GUILayout.MaxWidth(100f));
             }
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void OnDisable()
         {
@@ -224,7 +206,5 @@ namespace UnityEditor.PostProcessing
 
             IsInteractivePreviewOpened = false;
         }
-
-        #endregion Private Methods
     }
 }

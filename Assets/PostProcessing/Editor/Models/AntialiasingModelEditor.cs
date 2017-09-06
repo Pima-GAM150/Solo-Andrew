@@ -9,8 +9,6 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(AntialiasingModel))]
     public class AntialiasingModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private static string[] s_MethodNames =
         {
             "Fast Approximate Anti-aliasing",
@@ -23,10 +21,6 @@ namespace UnityEditor.PostProcessing
         private SerializedProperty m_TaaMotionBlending;
         private SerializedProperty m_TaaSharpen;
         private SerializedProperty m_TaaStationaryBlending;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -71,7 +65,5 @@ namespace UnityEditor.PostProcessing
                 EditorGUILayout.PropertyField(m_TaaSharpen);
             }
         }
-
-        #endregion Public Methods
     }
 }

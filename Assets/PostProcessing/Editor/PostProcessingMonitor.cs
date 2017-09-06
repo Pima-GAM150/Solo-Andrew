@@ -7,14 +7,8 @@ namespace UnityEditor.PostProcessing
 
     public abstract class PostProcessingMonitor : IDisposable
     {
-        #region Protected Fields
-
         protected PostProcessingInspector m_BaseEditor;
         protected MonitorSettings m_MonitorSettings;
-
-        #endregion Protected Fields
-
-        #region Public Methods
 
         public virtual void Dispose()
         { }
@@ -36,7 +30,5 @@ namespace UnityEditor.PostProcessing
 
         public virtual void OnMonitorSettings()
         { }
-
-        #endregion Public Methods
     }
 }

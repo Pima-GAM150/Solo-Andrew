@@ -6,14 +6,6 @@ namespace UnityEditor.PostProcessing
 
     internal static class EditorResources
     {
-        #region Private Fields
-
-        private static string m_EditorResourcesPath = string.Empty;
-
-        #endregion Private Fields
-
-        #region Internal Properties
-
         internal static string editorResourcesPath
         {
             get
@@ -32,19 +24,13 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Internal Properties
-
-        #region Internal Methods
+        private static string m_EditorResourcesPath = string.Empty;
 
         internal static T Load<T>(string name)
             where T : UnityObject
         {
             return AssetDatabase.LoadAssetAtPath<T>(editorResourcesPath + name);
         }
-
-        #endregion Internal Methods
-
-        #region Private Methods
 
         private static bool SearchForEditorResourcesPath(out string path)
         {
@@ -68,7 +54,5 @@ namespace UnityEditor.PostProcessing
             path = str.Substring(0, str.LastIndexOf(searchStr) + searchStr.Length);
             return true;
         }
-
-        #endregion Private Methods
     }
 }

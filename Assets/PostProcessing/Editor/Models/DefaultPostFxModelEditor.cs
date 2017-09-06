@@ -4,13 +4,7 @@ namespace UnityEditor.PostProcessing
 {
     public class DefaultPostFxModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private List<SerializedProperty> m_Properties = new List<SerializedProperty>();
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -24,7 +18,5 @@ namespace UnityEditor.PostProcessing
             foreach (var property in m_Properties)
                 EditorGUILayout.PropertyField(property);
         }
-
-        #endregion Public Methods
     }
 }

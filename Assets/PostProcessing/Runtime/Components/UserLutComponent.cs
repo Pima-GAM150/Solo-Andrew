@@ -2,8 +2,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class UserLutComponent : PostProcessingComponentRenderTexture<UserLutModel>
     {
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -16,10 +14,6 @@ namespace UnityEngine.PostProcessing
                        && !context.interrupted;
             }
         }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public void OnGUI()
         {
@@ -36,20 +30,10 @@ namespace UnityEngine.PostProcessing
             uberMaterial.SetVector(Uniforms._UserLut_Params, new Vector4(1f / settings.lut.width, 1f / settings.lut.height, settings.lut.height - 1f, settings.contribution));
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _UserLut = Shader.PropertyToID("_UserLut");
             internal static readonly int _UserLut_Params = Shader.PropertyToID("_UserLut_Params");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

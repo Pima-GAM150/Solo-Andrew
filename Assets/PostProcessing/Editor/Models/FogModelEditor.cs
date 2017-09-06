@@ -7,13 +7,7 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(FogModel))]
     public class FogModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_ExcludeSkybox;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -26,7 +20,5 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.PropertyField(m_ExcludeSkybox);
             EditorGUI.indentLevel--;
         }
-
-        #endregion Public Methods
     }
 }

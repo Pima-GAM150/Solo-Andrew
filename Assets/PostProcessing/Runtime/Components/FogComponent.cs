@@ -4,14 +4,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class FogComponent : PostProcessingComponentCommandBuffer<FogModel>
     {
-        #region Private Fields
-
-        private const string k_ShaderString = "Hidden/Post FX/Fog";
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -23,9 +15,7 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        private const string k_ShaderString = "Hidden/Post FX/Fog";
 
         public override CameraEvent GetCameraEvent()
         {
@@ -79,23 +69,13 @@ namespace UnityEngine.PostProcessing
             cb.ReleaseTemporaryRT(Uniforms._TempRT);
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _Density = Shader.PropertyToID("_Density");
             internal static readonly int _End = Shader.PropertyToID("_End");
             internal static readonly int _FogColor = Shader.PropertyToID("_FogColor");
             internal static readonly int _Start = Shader.PropertyToID("_Start");
             internal static readonly int _TempRT = Shader.PropertyToID("_TempRT");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

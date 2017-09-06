@@ -4,19 +4,6 @@ namespace UnityEngine.PostProcessing
 
     public sealed class DepthOfFieldComponent : PostProcessingComponentRenderTexture<DepthOfFieldModel>
     {
-        #region Private Fields
-
-        // Height of the 35mm full-frame format (36mm x 24mm)
-        private const float k_FilmHeight = 0.024f;
-
-        private const string k_ShaderString = "Hidden/Post FX/Depth Of Field";
-
-        private RenderTexture m_CoCHistory;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -26,9 +13,12 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        // Height of the 35mm full-frame format (36mm x 24mm)
+        private const float k_FilmHeight = 0.024f;
 
-        #region Public Methods
+        private const string k_ShaderString = "Hidden/Post FX/Depth Of Field";
+
+        private RenderTexture m_CoCHistory;
 
         public override DepthTextureMode GetCameraFlags()
         {
@@ -120,10 +110,6 @@ namespace UnityEngine.PostProcessing
             context.renderTextureFactory.Release(rt2);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private float CalculateFocalLength()
         {
             var settings = model.settings;
@@ -159,14 +145,8 @@ namespace UnityEngine.PostProcessing
             return RenderTextureFormat.Default;
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _CoCTex = Shader.PropertyToID("_CoCTex");
             internal static readonly int _DepthOfFieldCoCTex = Shader.PropertyToID("_DepthOfFieldCoCTex");
             internal static readonly int _DepthOfFieldParams = Shader.PropertyToID("_DepthOfFieldParams");
@@ -178,10 +158,6 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _RcpAspect = Shader.PropertyToID("_RcpAspect");
             internal static readonly int _RcpMaxCoC = Shader.PropertyToID("_RcpMaxCoC");
             internal static readonly int _TaaParams = Shader.PropertyToID("_TaaParams");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

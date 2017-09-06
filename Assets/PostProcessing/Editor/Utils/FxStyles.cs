@@ -4,8 +4,6 @@ namespace UnityEditor.PostProcessing
 {
     public static class FxStyles
     {
-        #region Public Fields
-
         public static GUIStyle centeredBoldLabel;
         public static GUIStyle centeredMiniLabel;
         public static Texture2D checkerIcon;
@@ -26,10 +24,6 @@ namespace UnityEditor.PostProcessing
         public static GUIStyle tickStyleRight;
         public static GUIStyle wheelThumb;
         public static Vector2 wheelThumbSize;
-
-        #endregion Public Fields
-
-        #region Public Constructors
 
         static FxStyles()
         {
@@ -107,7 +101,5 @@ namespace UnityEditor.PostProcessing
             else
                 paneOptionsIcon = (Texture2D)EditorGUIUtility.LoadRequired("Builtin Skins/LightSkin/Images/pane options.png");
         }
-
-        #endregion Public Constructors
     }
 }

@@ -7,8 +7,6 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(EyeAdaptationModel))]
     public class EyeAdaptationModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_AdaptationType;
         private SerializedProperty m_DynamicKeyValue;
         private SerializedProperty m_HighPercent;
@@ -20,10 +18,6 @@ namespace UnityEditor.PostProcessing
         private SerializedProperty m_MinLuminance;
         private SerializedProperty m_SpeedDown;
         private SerializedProperty m_SpeedUp;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -87,7 +81,5 @@ namespace UnityEditor.PostProcessing
 
             EditorGUI.indentLevel--;
         }
-
-        #endregion Public Methods
     }
 }

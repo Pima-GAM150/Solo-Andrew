@@ -6,39 +6,105 @@ namespace UnityEditor.PostProcessing
 {
     public sealed class CurveEditor
     {
-        #region Private Fields
-
-        private Rect m_CurveArea;
-
-        private Dictionary<SerializedProperty, CurveState> m_Curves;
-
-        private bool m_Dirty;
-
-        private EditMode m_EditMode = EditMode.None;
-
-        private SerializedProperty m_SelectedCurve;
-
-        private int m_SelectedKeyframeIndex = -1;
-
-        private Tangent m_TangentEditMode;
-
-        #endregion Private Fields
-
-        #region Public Constructors
-
-        public CurveEditor()
-            : this(Settings.defaultSettings)
-        { }
-
-        public CurveEditor(Settings settings)
+        public struct CurveState
         {
-            this.settings = settings;
-            m_Curves = new Dictionary<SerializedProperty, CurveState>();
+            public static CurveState defaultState
+            {
+                get
+                {
+                    return new CurveState
+                    {
+                        visible = true,
+                        editable = true,
+                        minPointCount = 2,
+                        zeroKeyConstantValue = 0f,
+                        color = Color.white,
+                        width = 2f,
+                        handleWidth = 2f,
+                        showNonEditableHandles = true,
+                        onlyShowHandlesOnSelection = false,
+                        loopInBounds = false
+                    };
+                }
+            }
+
+            public Color color;
+            public bool editable;
+            public float handleWidth;
+            public bool loopInBounds;
+            public uint minPointCount;
+            public bool onlyShowHandlesOnSelection;
+            public bool showNonEditableHandles;
+            public bool visible;
+            public float width;
+            public float zeroKeyConstantValue;
         }
 
-        #endregion Public Constructors
+        public struct Selection
+        {
+            public SerializedProperty curve;
+            public Keyframe? keyframe;
+            public int keyframeIndex;
 
-        #region Private Enums
+            public Selection(SerializedProperty curve, int keyframeIndex, Keyframe? keyframe)
+            {
+                this.curve = curve;
+                this.keyframeIndex = keyframeIndex;
+                this.keyframe = keyframe;
+            }
+        }
+
+        public struct Settings
+        {
+            public static Settings defaultSettings
+            {
+                get
+                {
+                    return new Settings
+                    {
+                        bounds = new Rect(0f, 0f, 1f, 1f),
+                        padding = new RectOffset(10, 10, 10, 10),
+                        selectionColor = Color.yellow,
+                        curvePickingDistance = 6f,
+                        keyTimeClampingDistance = 1e-4f
+                    };
+                }
+            }
+
+            public Rect bounds;
+            public float curvePickingDistance;
+            public float keyTimeClampingDistance;
+            public RectOffset padding;
+            public Color selectionColor;
+        }
+
+        internal struct MenuAction
+        {
+            internal SerializedProperty curve;
+            internal int index;
+            internal Vector3 position;
+
+            internal MenuAction(SerializedProperty curve)
+            {
+                this.curve = curve;
+                this.index = -1;
+                this.position = Vector3.zero;
+            }
+
+            internal MenuAction(SerializedProperty curve, int index)
+            {
+                this.curve = curve;
+                this.index = index;
+                this.position = Vector3.zero;
+            }
+
+            internal MenuAction(SerializedProperty curve, Vector3 position)
+            {
+                this.curve = curve;
+                this.index = -1;
+                this.position = position;
+            }
+        }
 
         private enum EditMode
         {
@@ -53,15 +119,30 @@ namespace UnityEditor.PostProcessing
             Out
         }
 
-        #endregion Private Enums
-
-        #region Public Properties
-
         public Settings settings { get; private set; }
+        private Rect m_CurveArea;
 
-        #endregion Public Properties
+        private Dictionary<SerializedProperty, CurveState> m_Curves;
 
-        #region Public Methods
+        private bool m_Dirty;
+
+        private EditMode m_EditMode = EditMode.None;
+
+        private SerializedProperty m_SelectedCurve;
+
+        private int m_SelectedKeyframeIndex = -1;
+
+        private Tangent m_TangentEditMode;
+
+        public CurveEditor()
+            : this(Settings.defaultSettings)
+        { }
+
+        public CurveEditor(Settings settings)
+        {
+            this.settings = settings;
+            m_Curves = new Dictionary<SerializedProperty, CurveState>();
+        }
 
         public void Add(params SerializedProperty[] curves)
         {
@@ -156,10 +237,6 @@ namespace UnityEditor.PostProcessing
             SetKeyframe(animCurve, keyframeIndex, keyframe);
             SaveCurve(curve, animCurve);
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void AddKeyframe(AnimationCurve curve, Keyframe newValue)
         {
@@ -743,147 +820,5 @@ namespace UnityEditor.PostProcessing
             curve.MoveKey(keyframeIndex, newValue);
             Invalidate();
         }
-
-        #endregion Private Methods
-
-        #region Public Structs
-
-        public struct CurveState
-        {
-            #region Public Fields
-
-            public Color color;
-            public bool editable;
-            public float handleWidth;
-            public bool loopInBounds;
-            public uint minPointCount;
-            public bool onlyShowHandlesOnSelection;
-            public bool showNonEditableHandles;
-            public bool visible;
-            public float width;
-            public float zeroKeyConstantValue;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static CurveState defaultState
-            {
-                get
-                {
-                    return new CurveState
-                    {
-                        visible = true,
-                        editable = true,
-                        minPointCount = 2,
-                        zeroKeyConstantValue = 0f,
-                        color = Color.white,
-                        width = 2f,
-                        handleWidth = 2f,
-                        showNonEditableHandles = true,
-                        onlyShowHandlesOnSelection = false,
-                        loopInBounds = false
-                    };
-                }
-            }
-
-            #endregion Public Properties
-        }
-
-        public struct Selection
-        {
-            #region Public Fields
-
-            public SerializedProperty curve;
-            public Keyframe? keyframe;
-            public int keyframeIndex;
-
-            #endregion Public Fields
-
-            #region Public Constructors
-
-            public Selection(SerializedProperty curve, int keyframeIndex, Keyframe? keyframe)
-            {
-                this.curve = curve;
-                this.keyframeIndex = keyframeIndex;
-                this.keyframe = keyframe;
-            }
-
-            #endregion Public Constructors
-        }
-
-        public struct Settings
-        {
-            #region Public Fields
-
-            public Rect bounds;
-            public float curvePickingDistance;
-            public float keyTimeClampingDistance;
-            public RectOffset padding;
-            public Color selectionColor;
-
-            #endregion Public Fields
-
-            #region Public Properties
-
-            public static Settings defaultSettings
-            {
-                get
-                {
-                    return new Settings
-                    {
-                        bounds = new Rect(0f, 0f, 1f, 1f),
-                        padding = new RectOffset(10, 10, 10, 10),
-                        selectionColor = Color.yellow,
-                        curvePickingDistance = 6f,
-                        keyTimeClampingDistance = 1e-4f
-                    };
-                }
-            }
-
-            #endregion Public Properties
-        }
-
-        #endregion Public Structs
-
-        #region Internal Structs
-
-        internal struct MenuAction
-        {
-            #region Internal Fields
-
-            internal SerializedProperty curve;
-            internal int index;
-            internal Vector3 position;
-
-            #endregion Internal Fields
-
-            #region Internal Constructors
-
-            internal MenuAction(SerializedProperty curve)
-            {
-                this.curve = curve;
-                this.index = -1;
-                this.position = Vector3.zero;
-            }
-
-            internal MenuAction(SerializedProperty curve, int index)
-            {
-                this.curve = curve;
-                this.index = index;
-                this.position = Vector3.zero;
-            }
-
-            internal MenuAction(SerializedProperty curve, Vector3 position)
-            {
-                this.curve = curve;
-                this.index = -1;
-                this.position = position;
-            }
-
-            #endregion Internal Constructors
-        }
-
-        #endregion Internal Structs
     }
 }

@@ -7,17 +7,36 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(ScreenSpaceReflectionModel))]
     public class ScreenSpaceReflectionModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
+        private struct IntensitySettings
+        {
+            public SerializedProperty fadeDistance;
+            public SerializedProperty fresnelFade;
+            public SerializedProperty fresnelFadePower;
+            public SerializedProperty reflectionMultiplier;
+        }
+
+        private struct ReflectionSettings
+        {
+            public SerializedProperty blendType;
+            public SerializedProperty iterationCount;
+            public SerializedProperty maxDistance;
+            public SerializedProperty reflectBackfaces;
+            public SerializedProperty reflectionBlur;
+            public SerializedProperty reflectionQuality;
+            public SerializedProperty stepSize;
+            public SerializedProperty widthModifier;
+        }
+
+        private struct ScreenEdgeMask
+        {
+            public SerializedProperty intensity;
+        }
 
         private IntensitySettings m_Intensity;
 
         private ReflectionSettings m_Reflection;
 
         private ScreenEdgeMask m_ScreenEdgeMask;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -78,48 +97,5 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.PropertyField(m_ScreenEdgeMask.intensity);
             EditorGUI.indentLevel--;
         }
-
-        #endregion Public Methods
-
-        #region Private Structs
-
-        private struct IntensitySettings
-        {
-            #region Public Fields
-
-            public SerializedProperty fadeDistance;
-            public SerializedProperty fresnelFade;
-            public SerializedProperty fresnelFadePower;
-            public SerializedProperty reflectionMultiplier;
-
-            #endregion Public Fields
-        }
-
-        private struct ReflectionSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty blendType;
-            public SerializedProperty iterationCount;
-            public SerializedProperty maxDistance;
-            public SerializedProperty reflectBackfaces;
-            public SerializedProperty reflectionBlur;
-            public SerializedProperty reflectionQuality;
-            public SerializedProperty stepSize;
-            public SerializedProperty widthModifier;
-
-            #endregion Public Fields
-        }
-
-        private struct ScreenEdgeMask
-        {
-            #region Public Fields
-
-            public SerializedProperty intensity;
-
-            #endregion Public Fields
-        }
-
-        #endregion Private Structs
     }
 }

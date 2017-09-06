@@ -2,14 +2,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class GrainComponent : PostProcessingComponentRenderTexture<GrainModel>
     {
-        #region Private Fields
-
-        private RenderTexture m_GrainLookupRT;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -21,9 +13,7 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
-
-        #region Public Methods
+        private RenderTexture m_GrainLookupRT;
 
         public override void OnDisable()
         {
@@ -78,22 +68,12 @@ namespace UnityEngine.PostProcessing
             uberMaterial.SetVector(Uniforms._Grain_Params2, new Vector4((float)context.width / (float)m_GrainLookupRT.width / settings.size, (float)context.height / (float)m_GrainLookupRT.height / settings.size, rndOffsetX, rndOffsetY));
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _Grain_Params1 = Shader.PropertyToID("_Grain_Params1");
             internal static readonly int _Grain_Params2 = Shader.PropertyToID("_Grain_Params2");
             internal static readonly int _GrainTex = Shader.PropertyToID("_GrainTex");
             internal static readonly int _Phase = Shader.PropertyToID("_Phase");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

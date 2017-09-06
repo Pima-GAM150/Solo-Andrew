@@ -8,16 +8,10 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(MotionBlurModel))]
     public class MotionBlurModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_FrameBlending;
         private GraphDrawer m_GraphDrawer;
         private SerializedProperty m_SampleCount;
         private SerializedProperty m_ShutterAngle;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -52,14 +46,8 @@ namespace UnityEditor.PostProcessing
             EditorGUI.indentLevel--;
         }
 
-        #endregion Public Methods
-
-        #region Private Classes
-
         private class GraphDrawer
         {
-            #region Private Fields
-
             private const float k_Height = 32f;
 
             private Texture m_BlendingIcon;
@@ -69,10 +57,6 @@ namespace UnityEditor.PostProcessing
             private GUIStyle m_LowerCenterStyle;
             private GUIStyle m_MiddleCenterStyle;
             private Vector3[] m_RectVertices = new Vector3[4];
-
-            #endregion Private Fields
-
-            #region Public Constructors
 
             public GraphDrawer()
             {
@@ -92,10 +76,6 @@ namespace UnityEditor.PostProcessing
                     m_ColorGray = new Color(0.92f, 0.92f, 0.92f);
                 }
             }
-
-            #endregion Public Constructors
-
-            #region Public Methods
 
             public void DrawBlendingGraph(float strength)
             {
@@ -166,10 +146,6 @@ namespace UnityEditor.PostProcessing
                 GUI.Label(new Rect(barOrigin, outerBarSize), barText, m_MiddleCenterStyle);
             }
 
-            #endregion Public Methods
-
-            #region Private Methods
-
             // Weight function for multi frame blending
             private float BlendingWeight(float strength, float time)
             {
@@ -212,10 +188,6 @@ namespace UnityEditor.PostProcessing
                 Handles.color = Color.white;
                 Handles.DrawSolidRectangleWithOutline(m_RectVertices, color, Color.clear);
             }
-
-            #endregion Private Methods
         }
-
-        #endregion Private Classes
     }
 }

@@ -9,8 +9,6 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(VignetteModel))]
     public class VignetteModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_Center;
         private SerializedProperty m_Color;
         private SerializedProperty m_Intensity;
@@ -20,10 +18,6 @@ namespace UnityEditor.PostProcessing
         private SerializedProperty m_Rounded;
         private SerializedProperty m_Roundness;
         private SerializedProperty m_Smoothness;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -102,10 +96,6 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void SetMaskImportSettings(TextureImporter importer)
         {
 #if UNITY_5_5_OR_NEWER
@@ -124,7 +114,5 @@ namespace UnityEditor.PostProcessing
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.SaveAndReimport();
         }
-
-        #endregion Private Methods
     }
 }

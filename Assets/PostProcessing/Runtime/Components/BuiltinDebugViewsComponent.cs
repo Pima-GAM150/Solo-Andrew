@@ -7,16 +7,6 @@ namespace UnityEngine.PostProcessing
 
     public sealed class BuiltinDebugViewsComponent : PostProcessingComponentCommandBuffer<BuiltinDebugViewsModel>
     {
-        #region Private Fields
-
-        private const string k_ShaderString = "Hidden/Post FX/Builtin Debug Views";
-
-        private ArrowArray m_Arrows;
-
-        #endregion Private Fields
-
-        #region Private Enums
-
         private enum Pass
         {
             Depth,
@@ -25,10 +15,6 @@ namespace UnityEngine.PostProcessing
             MovecImaging,
             MovecArrows
         }
-
-        #endregion Private Enums
-
-        #region Public Properties
 
         public override bool active
         {
@@ -40,9 +26,9 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private const string k_ShaderString = "Hidden/Post FX/Builtin Debug Views";
 
-        #region Public Methods
+        private ArrowArray m_Arrows;
 
         public override CameraEvent GetCameraEvent()
         {
@@ -113,10 +99,6 @@ namespace UnityEngine.PostProcessing
 
             context.Interrupt();
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
 
         private void DepthNormalsPass(CommandBuffer cb)
         {
@@ -199,14 +181,8 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _Amplitude = Shader.PropertyToID("_Amplitude");
             internal static readonly int _DepthScale = Shader.PropertyToID("_DepthScale");
             internal static readonly int _MainTex = Shader.PropertyToID("_MainTex");
@@ -214,21 +190,13 @@ namespace UnityEngine.PostProcessing
             internal static readonly int _Scale = Shader.PropertyToID("_Scale");
             internal static readonly int _TempRT = Shader.PropertyToID("_TempRT");
             internal static readonly int _TempRT2 = Shader.PropertyToID("_TempRT2");
-
-            #endregion Internal Fields
         }
 
         private class ArrowArray
         {
-            #region Public Properties
-
             public int columnCount { get; private set; }
             public Mesh mesh { get; private set; }
             public int rowCount { get; private set; }
-
-            #endregion Public Properties
-
-            #region Public Methods
 
             public void BuildMesh(int columns, int rows)
             {
@@ -288,10 +256,6 @@ namespace UnityEngine.PostProcessing
                 GraphicsUtils.Destroy(mesh);
                 mesh = null;
             }
-
-            #endregion Public Methods
         }
-
-        #endregion Private Classes
     }
 }

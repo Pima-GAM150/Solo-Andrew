@@ -8,17 +8,26 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(BuiltinDebugViewsModel), alwaysEnabled: true)]
     public class BuiltinDebugViewsEditor : PostProcessingModelEditor
     {
-        #region Private Fields
+        private struct DepthSettings
+        {
+            public SerializedProperty scale;
+        }
+
+        private struct MotionVectorsSettings
+        {
+            public SerializedProperty motionImageAmplitude;
+            public SerializedProperty motionImageOpacity;
+            public SerializedProperty motionVectorsAmplitude;
+            public SerializedProperty motionVectorsOpacity;
+            public SerializedProperty motionVectorsResolution;
+            public SerializedProperty sourceOpacity;
+        }
 
         private DepthSettings m_Depth;
 
         private SerializedProperty m_Mode;
 
         private MotionVectorsSettings m_MotionVectors;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -90,43 +99,10 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void CheckActiveEffect(bool expr, string name)
         {
             if (expr)
                 EditorGUILayout.HelpBox(string.Format("{0} isn't enabled, the debug view won't work.", name), MessageType.Warning);
         }
-
-        #endregion Private Methods
-
-        #region Private Structs
-
-        private struct DepthSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty scale;
-
-            #endregion Public Fields
-        }
-
-        private struct MotionVectorsSettings
-        {
-            #region Public Fields
-
-            public SerializedProperty motionImageAmplitude;
-            public SerializedProperty motionImageOpacity;
-            public SerializedProperty motionVectorsAmplitude;
-            public SerializedProperty motionVectorsOpacity;
-            public SerializedProperty motionVectorsResolution;
-            public SerializedProperty sourceOpacity;
-
-            #endregion Public Fields
-        }
-
-        #endregion Private Structs
     }
 }

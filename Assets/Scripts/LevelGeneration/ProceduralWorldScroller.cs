@@ -1,5 +1,4 @@
-﻿using EraseGame;
-using EraseGame.Delegates;
+﻿using EraseGame.Delegates;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +6,6 @@ using UnityEngine;
 [RequireComponent(typeof(AttackController))]
 public class ProceduralWorldScroller : MonoBehaviour
 {
-    #region Public Events
-
     /// <summary>
     /// Called when the scene scroll is complete.
     /// </summary>
@@ -18,10 +15,6 @@ public class ProceduralWorldScroller : MonoBehaviour
     /// Called when a new horizontal bar is instantiated.
     /// </summary>
     public event BarEvent OnBarSpawned;
-
-    #endregion Public Events
-
-    #region Public Fields
 
     /// <summary>
     ///  Prefab to spawn when moving to the next level.
@@ -38,16 +31,8 @@ public class ProceduralWorldScroller : MonoBehaviour
     /// </summary>
     public float ScrollSpeed = 10f;
 
-    #endregion Public Fields
-
-    #region Private Fields
-
     private List<HorizontalBar> _activeBars;
     private AttackController _attackController;
-
-    #endregion Private Fields
-
-    #region Public Methods
 
     /// <summary>
     /// Spawns the next horizontal bar
@@ -58,10 +43,6 @@ public class ProceduralWorldScroller : MonoBehaviour
         OnBarSpawned?.Invoke(newBar);
         _activeBars.Add(newBar);
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
 
     private void Awake()
     {
@@ -104,6 +85,4 @@ public class ProceduralWorldScroller : MonoBehaviour
         // TODO move this to some sort of state machine later.
         StartCoroutine(_attackController.Aim());
     }
-
-    #endregion Private Methods
 }

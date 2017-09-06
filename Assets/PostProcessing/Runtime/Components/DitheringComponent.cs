@@ -2,19 +2,6 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class DitheringComponent : PostProcessingComponentRenderTexture<DitheringModel>
     {
-        #region Private Fields
-
-        private const int k_TextureCount = 64;
-
-        // Holds 64 64x64 Alpha8 textures (256kb total)
-        private Texture2D[] noiseTextures;
-
-        private int textureIndex = 0;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public override bool active
         {
             get
@@ -24,9 +11,12 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private const int k_TextureCount = 64;
 
-        #region Public Methods
+        // Holds 64 64x64 Alpha8 textures (256kb total)
+        private Texture2D[] noiseTextures;
+
+        private int textureIndex = 0;
 
         public override void OnDisable()
         {
@@ -65,10 +55,6 @@ namespace UnityEngine.PostProcessing
             ));
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void LoadNoiseTextures()
         {
             noiseTextures = new Texture2D[k_TextureCount];
@@ -77,20 +63,10 @@ namespace UnityEngine.PostProcessing
                 noiseTextures[i] = Resources.Load<Texture2D>("Bluenoise64/LDR_LLL1_" + i);
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _DitheringCoords = Shader.PropertyToID("_DitheringCoords");
             internal static readonly int _DitheringTex = Shader.PropertyToID("_DitheringTex");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

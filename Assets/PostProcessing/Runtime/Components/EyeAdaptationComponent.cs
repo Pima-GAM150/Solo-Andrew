@@ -2,7 +2,15 @@ namespace UnityEngine.PostProcessing
 {
     public sealed class EyeAdaptationComponent : PostProcessingComponentRenderTexture<EyeAdaptationModel>
     {
-        #region Private Fields
+        public override bool active
+        {
+            get
+            {
+                return model.enabled
+                       && SystemInfo.supportsComputeShaders
+                       && !context.interrupted;
+            }
+        }
 
         // Don't forget to update 'EyeAdaptation.cginc' if you change these values !
         private const int k_HistogramBins = 64;
@@ -26,24 +34,6 @@ namespace UnityEngine.PostProcessing
         private bool m_FirstFrame = true;
 
         private ComputeBuffer m_HistogramBuffer;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
-        public override bool active
-        {
-            get
-            {
-                return model.enabled
-                       && SystemInfo.supportsComputeShaders
-                       && !context.interrupted;
-            }
-        }
-
-        #endregion Public Properties
-
-        #region Public Methods
 
         public override void OnDisable()
         {
@@ -178,10 +168,6 @@ namespace UnityEngine.PostProcessing
             m_FirstFrame = true;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private Vector4 GetHistogramScaleOffsetRes()
         {
             var settings = model.settings;
@@ -191,24 +177,14 @@ namespace UnityEngine.PostProcessing
             return new Vector4(scale, offset, Mathf.Floor(context.width / 2f), Mathf.Floor(context.height / 2f));
         }
 
-        #endregion Private Methods
-
-        #region Private Classes
-
         private static class Uniforms
         {
-            #region Internal Fields
-
             internal static readonly int _AutoExposure = Shader.PropertyToID("_AutoExposure");
             internal static readonly int _DebugWidth = Shader.PropertyToID("_DebugWidth");
             internal static readonly int _ExposureCompensation = Shader.PropertyToID("_ExposureCompensation");
             internal static readonly int _Params = Shader.PropertyToID("_Params");
             internal static readonly int _ScaleOffsetRes = Shader.PropertyToID("_ScaleOffsetRes");
             internal static readonly int _Speed = Shader.PropertyToID("_Speed");
-
-            #endregion Internal Fields
         }
-
-        #endregion Private Classes
     }
 }

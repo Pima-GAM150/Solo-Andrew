@@ -6,8 +6,6 @@ namespace UnityEditor.PostProcessing
 {
     public class WaveformMonitor : PostProcessingMonitor
     {
-        #region Private Fields
-
         private static GUIContent s_MonitorTitle = new GUIContent("Waveform");
 
         private ComputeBuffer m_Buffer;
@@ -16,18 +14,10 @@ namespace UnityEditor.PostProcessing
         private Rect m_MonitorAreaRect;
         private RenderTexture m_WaveformTexture;
 
-        #endregion Private Fields
-
-        #region Public Constructors
-
         public WaveformMonitor()
         {
             m_ComputeShader = EditorResources.Load<ComputeShader>("Monitors/WaveformCompute.compute");
         }
-
-        #endregion Public Constructors
-
-        #region Public Methods
 
         public override void Dispose()
         {
@@ -234,10 +224,6 @@ namespace UnityEditor.PostProcessing
             }
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void ComputeWaveform(RenderTexture source)
         {
             if (m_Buffer == null)
@@ -290,7 +276,5 @@ namespace UnityEditor.PostProcessing
         {
             m_Buffer = new ComputeBuffer(width * height, sizeof(uint) << 2);
         }
-
-        #endregion Private Methods
     }
 }

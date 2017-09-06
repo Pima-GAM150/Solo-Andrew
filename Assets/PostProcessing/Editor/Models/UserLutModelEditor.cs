@@ -8,14 +8,8 @@ namespace UnityEditor.PostProcessing
     [PostProcessingModelEditor(typeof(UserLutModel))]
     public class UserLutModelEditor : PostProcessingModelEditor
     {
-        #region Private Fields
-
         private SerializedProperty m_Contribution;
         private SerializedProperty m_Texture;
-
-        #endregion Private Fields
-
-        #region Public Methods
 
         public override void OnEnable()
         {
@@ -74,10 +68,6 @@ namespace UnityEditor.PostProcessing
             EditorGUILayout.PropertyField(m_Contribution);
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         private void SetLUTImportSettings(TextureImporter importer)
         {
 #if UNITY_5_5_OR_NEWER
@@ -93,7 +83,5 @@ namespace UnityEditor.PostProcessing
             importer.mipmapEnabled = false;
             importer.SaveAndReimport();
         }
-
-        #endregion Private Methods
     }
 }

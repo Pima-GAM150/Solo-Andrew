@@ -4,16 +4,6 @@ namespace UnityEngine.PostProcessing
 
     public static class GraphicsUtils
     {
-        #region Private Fields
-
-        private static Mesh s_Quad;
-
-        private static Texture2D s_WhiteTexture;
-
-        #endregion Private Fields
-
-        #region Public Properties
-
         public static bool isLinearColorSpace
         {
             get { return QualitySettings.activeColorSpace == ColorSpace.Linear; }
@@ -81,9 +71,9 @@ namespace UnityEngine.PostProcessing
             }
         }
 
-        #endregion Public Properties
+        private static Mesh s_Quad;
 
-        #region Public Methods
+        private static Texture2D s_WhiteTexture;
 
         // Useful when rendering to MRT
         public static void Blit(Material material, int pass)
@@ -152,7 +142,5 @@ namespace UnityEngine.PostProcessing
         {
             Destroy(s_Quad);
         }
-
-        #endregion Public Methods
     }
 }
