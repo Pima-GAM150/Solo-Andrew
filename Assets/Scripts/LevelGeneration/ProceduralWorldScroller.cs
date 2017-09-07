@@ -1,21 +1,13 @@
-﻿using EraseGame.Delegates;
+﻿using EraseGame;
+using EraseGame.Delegates;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(AttackController))]
 public class ProceduralWorldScroller : MonoBehaviour
 {
-    /// <summary>
-    /// Called when the scene scroll is complete.
-    /// </summary>
-    public event BarEvent OnBarScrollComplete;
-
-    /// <summary>
-    /// Called when a new horizontal bar is instantiated.
-    /// </summary>
-    public event BarEvent OnBarSpawned;
-
     /// <summary>
     ///  Prefab to spawn when moving to the next level.
     /// </summary>
@@ -31,6 +23,7 @@ public class ProceduralWorldScroller : MonoBehaviour
     /// </summary>
     public float ScrollSpeed = 10f;
 
+    private EventHub _eventHub => EventHub.GetEventHub();
     private List<HorizontalBar> _activeBars;
     private AttackController _attackController;
 
@@ -40,7 +33,7 @@ public class ProceduralWorldScroller : MonoBehaviour
     public void SpawnNextBar(Vector3 position)
     {
         var newBar = Instantiate(HorizontalBarPrefab, position, Quaternion.identity, transform);
-        OnBarSpawned?.Invoke(newBar);
+        _eventHub.InvokeOnBarSpawned(this, newBar);
         _activeBars.Add(newBar);
     }
 
@@ -67,6 +60,7 @@ public class ProceduralWorldScroller : MonoBehaviour
         }
         // toss out our old bottom since it's now off screen.
         _activeBars.RemoveAt(0);
+        _eventHub.InvokeOnScrollComplete(this, _activeBars.Last());
     }
 
     private void SetupInitialStage()

@@ -1,15 +1,11 @@
-﻿using EraseGame.Delegates;
+﻿using EraseGame;
+using EraseGame.Delegates;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class HorizontalBar : MonoBehaviour
 {
-    /// <summary>
-    /// calls whenever a block is finally destroyed.
-    /// </summary>
-    public event BlockEvent OnBlockDied;
-
     /// <summary>
     /// called when the color is changing for non-broken blocks.
     /// </summary>
@@ -36,6 +32,7 @@ public class HorizontalBar : MonoBehaviour
     /// </summary>
     public List<BreakableBlock> Blocks;
 
+    private EventHub _eventHub => EventHub.GetEventHub();
     private bool _canDamage;
 
     private float _lastHealthPercent = 1f;
@@ -47,10 +44,10 @@ public class HorizontalBar : MonoBehaviour
         Blocks.ForEach(block =>
        {
            block.CanDamage = CanDamage;
-           block.OnDamaged += BlockDamaged;
-           block.OnDied += BlockDied;
            OnUpdateColor += block.ChangeColor;
        });
+        _eventHub.OnBlockDamaged += BlockDamaged;
+        _eventHub.OnBlockBreak += BlockDied;
     }
 
     /// <summary>
@@ -73,6 +70,9 @@ public class HorizontalBar : MonoBehaviour
     /// <param name="block">the block damaged.</param>
     private void BlockDamaged(BreakableBlock block)
     {
+        // if this isn't our block we dont care.
+        if (block.transform.parent != this)
+            return;
         //exit if we can't deal damage.
         if (!CanDamage)
             return;
@@ -100,10 +100,13 @@ public class HorizontalBar : MonoBehaviour
     /// <param name="block">the block that is going to be destroyed</param>
     private void BlockDied(BreakableBlock block)
     {
+        // if this isn't our block we don't care.
+        if (block.transform.parent != this)
+            return;
+
         UpdateBlockColors(0f);
         CanDamage = false;
         Blocks.ForEach(b => { b.CanDamage = CanDamage; });
-        OnBlockDied?.Invoke(block);
     }
 
     /// <summary>

@@ -1,19 +1,10 @@
-﻿using EraseGame.Delegates;
+﻿using EraseGame;
+using EraseGame.Delegates;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BreakableBlock : MonoBehaviour, IPointerClickHandler
 {
-    /// <summary>
-    /// Called when the block is tapped on to deal damage.
-    /// </summary>
-    public event BlockEvent OnDamaged;
-
-    /// <summary>
-    /// Called when this block is being destroyed.
-    /// </summary>
-    public event BlockEvent OnDied;
-
     /// <summary>
     /// Determines if this block can be damaged or not.
     /// </summary>
@@ -36,6 +27,7 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
     [HideInInspector]
     public float MaxHealth;
 
+    private EventHub _eventHub => EventHub.GetEventHub();
     private SpriteRenderer _spRenderer;
     private Color _targetColor;
 
@@ -62,7 +54,7 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
         Health = Mathf.Clamp(Health - value, 0f, MaxHealth);
 
         // Broadcast we've taken damage.
-        OnDamaged?.Invoke(this);
+        _eventHub.InvokeOnBlockDamaged(this, this);
 
         // die if we're at 0 health.
         if (Health <= 0)
@@ -76,7 +68,7 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
     /// </summary>
     public void Kill()
     {
-        OnDied?.Invoke(this);
+        _eventHub.InvokeOnBlockBreak(this, this);
 
         Destroy(gameObject); // TODO: Some sort of death animation.
     }

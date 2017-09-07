@@ -7,26 +7,6 @@ using UnityEngine;
 public class AttackController : MonoBehaviour
 {
     /// <summary>
-    /// Called when an aim angle has been decided.
-    /// </summary>
-    public event EmptyEvent OnAimComplete;
-
-    /// <summary>
-    /// Called when the post-aim timer has completed, just before firing.
-    /// </summary>
-    public event EmptyEvent OnBreakTimerComplete;
-
-    /// <summary>
-    /// Called if the fire event failed (due to hitting a block or other error)
-    /// </summary>
-    public event EmptyEvent OnFireFailed;
-
-    /// <summary>
-    /// Called if the fire event was successful.
-    /// </summary>
-    public event EmptyEvent OnFireSuccess;
-
-    /// <summary>
     /// If we should be rendering our aim line or not.
     /// </summary>
     public bool ShouldDrawAim
@@ -87,6 +67,7 @@ public class AttackController : MonoBehaviour
     /// </summary>
     public float NextAimLocationX;
 
+    private EventHub _eventHub => EventHub.GetEventHub();
     private LineRenderer _lineRenderer;
     private ProceduralWorldScroller _procWorldScroller;
     private bool _shouldDrawAim;
@@ -110,7 +91,7 @@ public class AttackController : MonoBehaviour
             AimTarget = Quaternion.AngleAxis(_aimAngle, Vector3.forward) * Vector2.up;
             yield return null;
         }
-        OnAimComplete?.Invoke();
+        _eventHub.InvokeOnAimComplete(this);
     }
 
     private void Awake()
@@ -192,7 +173,7 @@ public class AttackController : MonoBehaviour
             yield return null;
         }
         // todo: Condition this
-        OnFireFailed?.Invoke();
-        OnFireSuccess?.Invoke();
+        _eventHub.InvokeOnFireFailed(this);
+        _eventHub.InvokeOnFireSuccess(this);
     }
 }
