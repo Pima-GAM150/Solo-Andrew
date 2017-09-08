@@ -42,12 +42,29 @@ public class HorizontalBar : MonoBehaviour
         Blocks = GetComponentsInChildren<BreakableBlock>().ToList();
         // Subscribe to block events and subscribe the block to some of our events.
         Blocks.ForEach(block =>
-       {
-           block.CanDamage = CanDamage;
-           OnUpdateColor += block.ChangeColor;
-       });
+        {
+            block.CanDamage = CanDamage;
+            OnUpdateColor += block.ChangeColor;
+        });
+        SetupEventListeners();
+    }
+
+    private void SetupEventListeners()
+    {
         _eventHub.OnBlockDamaged += BlockDamaged;
         _eventHub.OnBlockBreak += BlockDied;
+        _eventHub.OnAimComplete += EventOnAimComplete;
+        _eventHub.OnBreakTimerComplete += EventOnBreakTimerComplete;
+    }
+
+    private void EventOnBreakTimerComplete()
+    {
+        CanDamage = false;
+    }
+
+    private void EventOnAimComplete()
+    {
+        CanDamage = true;
     }
 
     /// <summary>
@@ -71,7 +88,7 @@ public class HorizontalBar : MonoBehaviour
     private void BlockDamaged(BreakableBlock block)
     {
         // if this isn't our block we dont care.
-        if (block.transform.parent != this)
+        if (block.transform.parent != transform)
             return;
         //exit if we can't deal damage.
         if (!CanDamage)
@@ -101,7 +118,7 @@ public class HorizontalBar : MonoBehaviour
     private void BlockDied(BreakableBlock block)
     {
         // if this isn't our block we don't care.
-        if (block.transform.parent != this)
+        if (block.transform.parent != transform)
             return;
 
         UpdateBlockColors(0f);

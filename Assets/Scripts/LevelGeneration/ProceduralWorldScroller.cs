@@ -1,5 +1,4 @@
 ﻿using EraseGame;
-using EraseGame.Delegates;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +23,9 @@ public class ProceduralWorldScroller : MonoBehaviour
     public float ScrollSpeed = 10f;
 
     private EventHub _eventHub => EventHub.GetEventHub();
-    private List<HorizontalBar> _activeBars;
+    public List<HorizontalBar> _activeBars;
     private AttackController _attackController;
+    public float InitialWaitTime = 2f;
 
     /// <summary>
     /// Spawns the next horizontal bar
@@ -42,6 +42,18 @@ public class ProceduralWorldScroller : MonoBehaviour
         _attackController = GetComponent<AttackController>();
         _activeBars = new List<HorizontalBar>();
         SetupInitialStage();
+        SetupEventListeners();
+    }
+
+    private void SetupEventListeners()
+    {
+        _eventHub.OnFireSuccess += EventOnFireSuccess;
+    }
+
+    private void EventOnFireSuccess()
+    {
+        SpawnNextBar(Vector3.up * InitialSpawnDistance);
+        StartCoroutine(ScrollBars());
     }
 
     private void OnBlockDied(BreakableBlock block)
@@ -53,13 +65,24 @@ public class ProceduralWorldScroller : MonoBehaviour
     private IEnumerator ScrollBars()
     {
         // move all bars down until our bottom-most bar is at the bottom.
-        while (_activeBars[0].transform.position.y > 0)
+        while (_activeBars[1].transform.position.y > 0)
         {
-            _activeBars.ForEach(bar => bar.transform.position -= Time.deltaTime * ScrollSpeed * Vector3.down);
+            for (int i = 0; i < _activeBars.Count - 1; i++)
+            {
+                _activeBars[i].transform.position += Time.deltaTime * ScrollSpeed * Vector3.down;
+            }
+            //_activeBars.ForEach(bar => bar.transform.position += Time.deltaTime * ScrollSpeed * Vector3.down);
             yield return null;
         }
         // toss out our old bottom since it's now off screen.
+        Destroy(_activeBars[0].gameObject);
         _activeBars.RemoveAt(0);
+        StartCoroutine(DelayBeforeScrollComplete());
+    }
+
+    private IEnumerator DelayBeforeScrollComplete()
+    {
+        yield return new WaitForSeconds(InitialWaitTime);
         _eventHub.InvokeOnScrollComplete(this, _activeBars.Last());
     }
 
@@ -76,7 +99,7 @@ public class ProceduralWorldScroller : MonoBehaviour
         // set our aim location to the destroyed blocks location.
         _attackController.CurrentAimLocation = destroyedBlockLocation;
         // start the game essentially.
+        StartCoroutine(DelayBeforeScrollComplete());
         // TODO move this to some sort of state machine later.
-        StartCoroutine(_attackController.Aim());
     }
 }

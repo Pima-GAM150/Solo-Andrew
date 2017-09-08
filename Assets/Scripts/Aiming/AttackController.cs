@@ -3,6 +3,7 @@ using EraseGame.Delegates;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AttackController : MonoBehaviour
 {
@@ -97,6 +98,24 @@ public class AttackController : MonoBehaviour
     private void Awake()
     {
         _lineRenderer = FindObjectOfType<LineRenderer>();
+        SubscribeToEvents();
+    }
+
+    private void SubscribeToEvents()
+    {
+        _eventHub.OnScrollComplete += EventOnScrollComplete;
+        _eventHub.OnAimComplete += EventOnAimComplete;
+    }
+
+    private void EventOnAimComplete()
+    {
+        StartCoroutine(StartFiring());
+    }
+
+    private void EventOnScrollComplete(HorizontalBar bar)
+    {
+        Debug.Log("Starting Firing");
+        StartCoroutine(Aim());
     }
 
     /// <summary>
@@ -165,13 +184,10 @@ public class AttackController : MonoBehaviour
     /// <returns></returns>
     private IEnumerator StartFiring()
     {
-        var counter = 0f;
-        // Give the player some time to try and react.
-        while (counter < BreakTime)
-        {
-            counter += Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(BreakTime);
+        _eventHub.InvokeOnBreakTimerComplete(this);
+
+        yield return new WaitForSeconds(BreakTime);
         // todo: Condition this
         _eventHub.InvokeOnFireFailed(this);
         _eventHub.InvokeOnFireSuccess(this);

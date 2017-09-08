@@ -140,6 +140,8 @@ MonoBehaviour:
     type: 2}
   InitialSpawnDistance: 6
   ScrollSpeed: 10
+  _activeBars: []
+  InitialWaitTime: 0
 --- !u!4 &264607805
 Transform:
   m_ObjectHideFlags: 0
@@ -165,12 +167,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimAngleMax: 60
-  AimSpeed: 10
+  AimSpeed: 25
   AimTarget: {x: 0, y: 0}
-  AimTime: 50
-  BreakTime: 1
+  AimTime: 2
+  BreakTime: 2
   CurrentAimLocation: {x: 0, y: 0}
   NextAimLocationX: 0
+--- !u!1 &587747763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 587747765}
+  - component: {fileID: 587747764}
+  m_Layer: 0
+  m_Name: EventHub
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &587747764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 587747763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0748190ad5f8f2b49b4725aceb5a9e47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &587747765
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 587747763}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.1105379, y: 2.5758832, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &945411666
 GameObject:
   m_ObjectHideFlags: 0
