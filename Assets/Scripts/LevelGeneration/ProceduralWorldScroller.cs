@@ -22,27 +22,28 @@ public class ProceduralWorldScroller : MonoBehaviour
     /// </summary>
     public float ScrollSpeed = 10f;
 
-    private EventHub _eventHub => EventHub.GetEventHub();
     public List<HorizontalBar> _activeBars;
-    private AttackController _attackController;
     public float InitialWaitTime = 2f;
+    private EventHub _eventHub => EventHub.GetEventHub();
+    private AttackController _attackController;
 
     /// <summary>
     /// Spawns the next horizontal bar
     /// </summary>
-    public void SpawnNextBar(Vector3 position)
+    public HorizontalBar SpawnNextBar(Vector3 position)
     {
         var newBar = Instantiate(HorizontalBarPrefab, position, Quaternion.identity, transform);
         _eventHub.InvokeOnBarSpawned(this, newBar);
         _activeBars.Add(newBar);
+        return newBar;
     }
 
-    private void Awake()
+    private void Start()
     {
         _attackController = GetComponent<AttackController>();
         _activeBars = new List<HorizontalBar>();
-        SetupInitialStage();
         SetupEventListeners();
+        SetupInitialStage();
     }
 
     private void SetupEventListeners()
@@ -88,10 +89,11 @@ public class ProceduralWorldScroller : MonoBehaviour
 
     private void SetupInitialStage()
     {
+        Debug.Log("SetupInitialStage()");
         // spawn our first bar at our location (should be 0,0)
-        SpawnNextBar(transform.position);
+        var firstBar = SpawnNextBar(transform.position);
         // get the location of the randomly destroyed hole
-        var destroyedBlockLocation = _activeBars[0].DestroyRandomBlock().position;
+        var destroyedBlockLocation = firstBar.DestroyRandomBlock().position;
         // spawn the second bar at the initial spawn distance
         SpawnNextBar(transform.position + (Vector3.up * InitialSpawnDistance));
         // offset it so we're aiming out the top of a block.

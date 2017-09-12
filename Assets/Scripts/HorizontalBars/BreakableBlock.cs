@@ -49,7 +49,7 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
         // Do nothing if we can't be damaged.
         if (!CanDamage)
             return;
-
+        Debug.Log($"Applying Damage to {name}");
         // Clamp our health just to avoid negatives.
         Health = Mathf.Clamp(Health - value, 0f, MaxHealth);
 
@@ -83,7 +83,7 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
         Damage(ClickDamage);
     }
 
-    private void Awake()
+    private void Start()
     {
         MaxHealth = Health;
         _spRenderer = GetComponent<SpriteRenderer>();

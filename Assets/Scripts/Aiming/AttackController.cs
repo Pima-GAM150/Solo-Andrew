@@ -95,7 +95,7 @@ public class AttackController : MonoBehaviour
         _eventHub.InvokeOnAimComplete(this);
     }
 
-    private void Awake()
+    private void Start()
     {
         _lineRenderer = FindObjectOfType<LineRenderer>();
         SubscribeToEvents();

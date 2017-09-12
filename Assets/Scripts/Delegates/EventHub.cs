@@ -75,7 +75,7 @@ namespace EraseGame
         ///</summary>
         public void InvokeOnScrollComplete<T>(T sender, HorizontalBar bar)
         {
-            Debug.Log($"OnScrollComplete Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnScrollComplete Invoked by {sender.ToString()}");
             OnScrollComplete?.Invoke(bar);
         }
 
@@ -84,7 +84,7 @@ namespace EraseGame
         /// </summary>
         public void InvokeOnAimComplete<T>(T sender)
         {
-            Debug.Log($"OnAimComplete Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnAimComplete Invoked by {sender.ToString()}");
             OnAimComplete?.Invoke();
         }
 
@@ -93,7 +93,7 @@ namespace EraseGame
         /// </summary>
         public void InvokeOnBreakTimerComplete<T>(T sender)
         {
-            Debug.Log($"OnBreakTimerComplete Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnBreakTimerComplete Invoked by {sender.ToString()}");
             OnBreakTimerComplete?.Invoke();
         }
 
@@ -102,7 +102,7 @@ namespace EraseGame
         ///</summary>
         public void InvokeOnBlockBreak<T>(T sender, BreakableBlock block)
         {
-            Debug.Log($"OnBlockBreak Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnBlockBreak Invoked by {sender.ToString()}");
             OnBlockBreak?.Invoke(block);
         }
 
@@ -111,7 +111,7 @@ namespace EraseGame
         ///</summary>
         public void InvokeOnBarSpawned<T>(T sender, HorizontalBar bar)
         {
-            Debug.Log($"OnBarSpawned Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnBarSpawned Invoked by {sender.ToString()}");
             OnBarSpawned?.Invoke(bar);
         }
 
@@ -120,7 +120,7 @@ namespace EraseGame
         ///</summary>
         public void InvokeOnBlockDamaged<T>(T sender, BreakableBlock block)
         {
-            Debug.Log($"OnBlockDamaged Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnBlockDamaged Invoked by {sender.ToString()}");
             OnBlockDamaged?.Invoke(block);
         }
 
@@ -129,7 +129,7 @@ namespace EraseGame
         /// </summary>
         public void InvokeOnFireFailed<T>(T sender)
         {
-            Debug.Log($"OnFireFailed Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnFireFailed Invoked by {sender.ToString()}");
             OnFireFailed?.Invoke();
         }
 
@@ -138,7 +138,7 @@ namespace EraseGame
         /// </summary>
         public void InvokeOnFireSuccess<T>(T sender)
         {
-            Debug.Log($"OnFireSuccess Invoked by {sender.ToString()}");
+            Debug.Log($"[{Time.time}] OnFireSuccess Invoked by {sender.ToString()}");
             OnFireSuccess?.Invoke();
         }
 

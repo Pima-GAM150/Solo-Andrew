@@ -46,7 +46,27 @@ public class HorizontalBar : MonoBehaviour
             block.CanDamage = CanDamage;
             OnUpdateColor += block.ChangeColor;
         });
+    }
+
+    public void Start()
+    {
         SetupEventListeners();
+    }
+
+    /// <summary>
+    /// Destroys a random block on this bar.
+    /// </summary>
+    /// <returns>the transform of the destroyed block</returns>
+    public Transform DestroyRandomBlock()
+    {
+        Debug.Log("DestroyRandomBlock()");
+        CanDamage = true;
+        int index = Random.Range(0, Blocks.Count - 1);
+        var block = Blocks[index];
+        var returnTransform = block.transform;
+        block.Damage(block.MaxHealth);
+        CanDamage = false;
+        return returnTransform;
     }
 
     private void SetupEventListeners()
@@ -65,20 +85,6 @@ public class HorizontalBar : MonoBehaviour
     private void EventOnAimComplete()
     {
         CanDamage = true;
-    }
-
-    /// <summary>
-    /// Destroys a random block on this bar.
-    /// </summary>
-    /// <returns>the transform of the destroyed block</returns>
-    public Transform DestroyRandomBlock()
-    {
-        CanDamage = true;
-        var block = Blocks[Random.Range(0, Blocks.Count - 1)];
-        var returnTransform = block.transform;
-        block.Damage(block.MaxHealth);
-        CanDamage = false;
-        return returnTransform;
     }
 
     /// <summary>
