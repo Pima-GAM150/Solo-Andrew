@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using static LineRenderer;
 
 public class AttackController : MonoBehaviour
 {
@@ -29,32 +30,6 @@ public class AttackController : MonoBehaviour
                 else
                 {
                     _shouldDrawAim = value;
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    /// If we should be rendering our fire line or not.
-    /// </summary>
-    public bool ShouldDrawFire
-    {
-        get
-        {
-            return _shouldDrawFire;
-        }
-        set
-        {
-            if (_shouldDrawFire != value)
-            {
-                if (value)
-                {
-                    _shouldDrawFire = value;
-                    StartCoroutine(DrawFire());
-                }
-                else
-                {
-                    _shouldDrawFire = value;
                 }
             }
         }
@@ -96,14 +71,12 @@ public class AttackController : MonoBehaviour
     public float NextAimLocationX;
 
     private EventHub _eventHub => EventHub.GetEventHub();
-
+    private bool _shouldSpeedUp = false;
     private LineRenderer _lineRenderer;
 
     private ProceduralWorldScroller _procWorldScroller;
 
     private bool _shouldDrawAim;
-
-    private bool _shouldDrawFire;
 
     /// <summary>
     /// Starts the animing sequence and ends in firing.
@@ -125,26 +98,6 @@ public class AttackController : MonoBehaviour
             yield return null;
         }
         _eventHub.InvokeOnAimComplete(this);
-    }
-
-    private RaycastHit2D DrawFire()
-    {
-        RaycastHit2D ray2d;
-        ray2d = Physics2D.Raycast(CurrentAimLocation, AimTarget, 2000f);
-        if (ray2d)
-        {
-            var points = new List<Vector2> { CurrentAimLocation, ray2d.point };
-            // Test for bounces if we aren't aiming straight at  block.
-            if (ray2d.collider.tag != "EndCollider")
-            {
-                var dir = CurrentAimLocation.GetDirection(ray2d.point);
-                var bouncePoints = GatherBounceTargets(ray2d.point, dir, "EndCollider");
-                points.AddRange(bouncePoints);
-                ray2d = Physics2D.Raycast(points.Last(), Vector2.up, 1000f);
-            }
-            _lineRenderer.StartRendering(points);
-            return ray2d;
-        }
     }
 
     private void Start()
@@ -172,9 +125,20 @@ public class AttackController : MonoBehaviour
 
     private void EventOnScrollComplete(HorizontalBar bar)
     {
+        if (_shouldSpeedUp)
+            SpeedUp();
+        else
+            _shouldSpeedUp = true;
+
         CurrentAimLocation.x = NextAimLocationX;
-        Debug.Log("Starting Firing");
         StartCoroutine(Aim());
+    }
+
+    private void SpeedUp()
+    {
+        AimSpeed *= 1.2f;
+        AimTime *= 0.95f;
+        BreakTime = Mathf.Pow(BreakTime, 0.9f) + 0.5f; // our minimum will be 1.5f
     }
 
     /// <summary>
@@ -202,6 +166,42 @@ public class AttackController : MonoBehaviour
             yield return null;
         }
         _lineRenderer.StopRendering();
+    }
+
+    private bool DrawFire(LineStyle style)
+    {
+        _lineRenderer.CurrentStyle = style;
+        RaycastHit2D ray2d;
+        ray2d = Physics2D.Raycast(CurrentAimLocation, AimTarget, 2000f);
+        bool hitEnd = false;
+        if (ray2d)
+        {
+            var points = new List<Vector2> { CurrentAimLocation, ray2d.point };
+            // Test for bounces if we aren't aiming straight at  block.
+
+            bool isHittingBoxBottom = ray2d.collider.tag == "Block" && ray2d.normal == Vector2.down;
+
+            // if we arent hitting the bottom of a block
+            if (!isHittingBoxBottom)
+            {
+                // and we arent hitting the end
+                if (ray2d.collider.tag != "EndCollider")
+                {
+                    // check for bounces
+                    var dir = CurrentAimLocation.GetDirection(ray2d.point);
+                    var bouncePoints = GatherBounceTargets(ray2d.point, dir, "EndCollider");
+                    points.AddRange(bouncePoints);
+
+                    var endRay = Physics2D.Raycast(points.Last() + Vector2.down, Vector2.up, 100f);
+                    Debug.DrawLine(points.Last() + Vector2.down, (points.Last() + Vector2.down) + (Vector2.up * 100f), Color.black);
+                    hitEnd = (endRay && endRay.collider.tag == "EndCollider");
+                }
+                // only possible if we've passed through a block.
+                else hitEnd = true;
+            }
+            _lineRenderer.StartRendering(points);
+        }
+        return hitEnd;
     }
 
     /// <summary>
@@ -244,12 +244,39 @@ public class AttackController : MonoBehaviour
     {
         Debug.Log($"[{Time.time}] Stopping Draw Aim");
         ShouldDrawAim = false;
-        yield return new WaitForSeconds(BreakTime);
-        _eventHub.InvokeOnBreakTimerComplete(this);
+        var counter = 0f;
 
-        yield return new WaitForSeconds(BreakTime);
-        // todo: Condition this
-        _eventHub.InvokeOnFireFailed(this);
-        _eventHub.InvokeOnFireSuccess(this);
+        while (counter < BreakTime)
+        {
+            DrawFire(LineStyle.Test);
+            counter += Time.deltaTime;
+            yield return null;
+        }
+
+        _eventHub.InvokeOnBreakTimerComplete(this);
+        counter = 0f;
+        // test if we have a hit
+
+        var success = DrawFire(LineStyle.Test);
+        while (counter < BreakTime)
+        {
+            DrawFire(LineStyle.Test);
+            counter += Time.deltaTime;
+            yield return null;
+        }
+
+        if (success)
+        {
+            DrawFire(LineStyle.Valid);
+            yield return new WaitForSeconds(1f);
+            _eventHub.InvokeOnFireSuccess(this);
+        }
+        else
+        {
+            DrawFire(LineStyle.Invalid);
+            yield return new WaitForSeconds(1f);
+            _eventHub.InvokeOnFireFailed(this);
+        }
+        _lineRenderer.StopRendering();
     }
 }

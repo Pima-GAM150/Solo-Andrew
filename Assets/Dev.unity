@@ -141,7 +141,7 @@ MonoBehaviour:
   InitialSpawnDistance: 6
   ScrollSpeed: 10
   _activeBars: []
-  InitialWaitTime: 0
+  InitialWaitTime: 2
 --- !u!4 &264607805
 Transform:
   m_ObjectHideFlags: 0
@@ -167,10 +167,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimAngleMax: 60
-  AimSpeed: 25
+  AimSpeed: 10
   AimTarget: {x: 0, y: 0}
-  AimTime: 2
-  BreakTime: 2
+  AimTime: 10
+  BreakTime: 5
   CurrentAimLocation: {x: 0, y: 0}
   NextAimLocationX: 0
 --- !u!1 &587747763
@@ -391,19 +391,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentStyle: 0
-  LineThickness: 0.03
+  LineThickness: 0.02
   PreviewColors:
-    PrimaryColor: {r: 0.7941176, g: 0.7941176, b: 0.7941176, a: 1}
+    PrimaryColor: {r: 0.78676474, g: 0.78676474, b: 0.78676474, a: 1}
     SecondaryColor: {r: 0, g: 0, b: 0, a: 1}
   TestColors:
-    PrimaryColor: {r: 0, g: 1, b: 0.048275948, a: 1}
-    SecondaryColor: {r: 1, g: 0, b: 0, a: 1}
+    PrimaryColor: {r: 0.58823526, g: 0.8125761, b: 1, a: 1}
+    SecondaryColor: {r: 0, g: 0.7731236, b: 0.9264706, a: 1}
   ValidColors:
-    PrimaryColor: {r: 0.5514706, g: 1, b: 0.59168357, a: 1}
-    SecondaryColor: {r: 0.17941171, g: 0.89705884, b: 0, a: 1}
+    PrimaryColor: {r: 0.6691177, g: 1, b: 0.8083164, a: 1}
+    SecondaryColor: {r: 0.2827586, g: 1, b: 0, a: 1}
   InvalidColors:
-    PrimaryColor: {r: 0.875, g: 0.5211397, b: 0.5211397, a: 1}
-    SecondaryColor: {r: 0.44117647, g: 0, b: 0, a: 1}
+    PrimaryColor: {r: 1, g: 0.49264705, b: 0.5241379, a: 1}
+    SecondaryColor: {r: 0.75735295, g: 0, b: 0, a: 1}
 --- !u!61 &1064214733
 BoxCollider2D:
   m_ObjectHideFlags: 0
