@@ -79,7 +79,6 @@ public class BreakableBlock : MonoBehaviour, IPointerClickHandler
     /// <param name="eventData">Current event data.</param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log("Clicked");
         Damage(ClickDamage);
     }
 

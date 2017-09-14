@@ -71,27 +71,22 @@ public class HorizontalBar : MonoBehaviour
 
     private void SetupEventListeners()
     {
-        _eventHub.OnBlockDamaged += BlockDamaged;
-        _eventHub.OnBlockBreak += BlockDied;
-        _eventHub.OnAimComplete += EventOnAimComplete;
+        _eventHub.OnBlockDamaged += EventBlockDamaged;
+        _eventHub.OnBlockBreak += EventBlockBreak;
         _eventHub.OnBreakTimerComplete += EventOnBreakTimerComplete;
     }
 
     private void EventOnBreakTimerComplete()
     {
-        CanDamage = false;
-    }
-
-    private void EventOnAimComplete()
-    {
-        CanDamage = true;
+        _eventHub.OnBlockDamaged -= EventBlockDamaged;
+        _eventHub.OnBlockBreak -= EventBlockBreak;
     }
 
     /// <summary>
     /// Called when a block takes damage.
     /// </summary>
     /// <param name="block">the block damaged.</param>
-    private void BlockDamaged(BreakableBlock block)
+    private void EventBlockDamaged(BreakableBlock block)
     {
         // if this isn't our block we dont care.
         if (block.transform.parent != transform)
@@ -121,7 +116,7 @@ public class HorizontalBar : MonoBehaviour
     /// Called when a block attached to this bar dies.
     /// </summary>
     /// <param name="block">the block that is going to be destroyed</param>
-    private void BlockDied(BreakableBlock block)
+    private void EventBlockBreak(BreakableBlock block)
     {
         // if this isn't our block we don't care.
         if (block.transform.parent != transform)

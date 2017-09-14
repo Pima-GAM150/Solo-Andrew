@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 
 [RequireComponent(typeof(AttackController))]
 public class ProceduralWorldScroller : MonoBehaviour
@@ -49,11 +50,23 @@ public class ProceduralWorldScroller : MonoBehaviour
     private void SetupEventListeners()
     {
         _eventHub.OnFireSuccess += EventOnFireSuccess;
+        _eventHub.OnAimComplete += EventOnAimComplete;
+        _eventHub.OnBreakTimerComplete += EventOnBreakTimerComplete;
+    }
+
+    private void EventOnBreakTimerComplete()
+    {
+        _activeBars.Last().CanDamage = false;
+    }
+
+    private void EventOnAimComplete()
+    {
+        _activeBars.Last().CanDamage = true;
     }
 
     private void EventOnFireSuccess()
     {
-        SpawnNextBar(Vector3.up * InitialSpawnDistance);
+        SpawnNextBar(Vector3.up * (InitialSpawnDistance * 2));
         StartCoroutine(ScrollBars());
     }
 
@@ -68,7 +81,7 @@ public class ProceduralWorldScroller : MonoBehaviour
         // move all bars down until our bottom-most bar is at the bottom.
         while (_activeBars[1].transform.position.y > 0)
         {
-            for (int i = 0; i < _activeBars.Count - 1; i++)
+            for (int i = 0; i < _activeBars.Count; i++)
             {
                 _activeBars[i].transform.position += Time.deltaTime * ScrollSpeed * Vector3.down;
             }
