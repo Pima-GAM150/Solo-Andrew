@@ -83,6 +83,7 @@ public class AttackController : MonoBehaviour
     /// </summary>
     public IEnumerator Aim()
     {
+        _lineRenderer.CurrentStyle = LineStyle.Preview;
         // Start rendering our line.
         ShouldDrawAim = true;
 
@@ -138,7 +139,7 @@ public class AttackController : MonoBehaviour
     {
         AimSpeed *= 1.2f;
         AimTime *= 0.95f;
-        BreakTime = Mathf.Pow(BreakTime, 0.9f) + 0.5f; // our minimum will be 1.5f
+        BreakTime = Mathf.Clamp(BreakTime * 0.95f, 1.5f, 10f);
     }
 
     /// <summary>
@@ -258,7 +259,8 @@ public class AttackController : MonoBehaviour
         // test if we have a hit
 
         var success = DrawFire(LineStyle.Test);
-        while (counter < BreakTime)
+        var halfBreak = BreakTime / 2f;
+        while (counter < halfBreak)
         {
             DrawFire(LineStyle.Test);
             counter += Time.deltaTime;
@@ -268,13 +270,13 @@ public class AttackController : MonoBehaviour
         if (success)
         {
             DrawFire(LineStyle.Valid);
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.5f);
             _eventHub.InvokeOnFireSuccess(this);
         }
         else
         {
             DrawFire(LineStyle.Invalid);
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
             _eventHub.InvokeOnFireFailed(this);
         }
         _lineRenderer.StopRendering();

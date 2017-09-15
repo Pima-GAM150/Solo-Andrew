@@ -146,7 +146,6 @@ namespace EraseGame
         {
             if (_eventHub == null)
             {
-                DontDestroyOnLoad(this);
                 _eventHub = this;
             }
             else
