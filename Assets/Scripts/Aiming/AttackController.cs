@@ -71,7 +71,7 @@ public class AttackController : MonoBehaviour
     public float NextAimLocationX;
 
     private EventHub _eventHub => EventHub.GetEventHub();
-    private bool _shouldSpeedUp = false;
+
     private LineRenderer _lineRenderer;
 
     private ProceduralWorldScroller _procWorldScroller;
@@ -125,12 +125,12 @@ public class AttackController : MonoBehaviour
 
     private void EventOnScrollComplete(HorizontalBar bar)
     {
-        if (_shouldSpeedUp)
+        if (bar != null)
+        {
             SpeedUp();
-        else
-            _shouldSpeedUp = true;
+            CurrentAimLocation.x = NextAimLocationX;
+        }
 
-        CurrentAimLocation.x = NextAimLocationX;
         StartCoroutine(Aim());
     }
 

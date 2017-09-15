@@ -57,6 +57,7 @@ public class ProceduralWorldScroller : MonoBehaviour
 
     private void EventOnScrollComplete(HorizontalBar bar)
     {
+        if (bar == null) return;
         SpeedUp();
     }
 
@@ -129,7 +130,5 @@ public class ProceduralWorldScroller : MonoBehaviour
         // set our aim location to the destroyed blocks location.
         _attackController.CurrentAimLocation = destroyedBlockLocation;
         _attackController.NextAimLocationX = destroyedBlockLocation.x;
-        // start the game essentially.
-        StartCoroutine(DelayBeforeScrollComplete());
     }
 }
